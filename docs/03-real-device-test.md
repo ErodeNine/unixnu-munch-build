@@ -1,28 +1,28 @@
-# K40S 实机测试手册（逐步执行）
+# K40S hardware test manual (step by step)
 
-> 适用：Redmi K40S / POCO F4（`munch`），SM8250-AC。
-> 前置：**已解锁 Bootloader**。未解锁请先在“小米社区 → 解锁工具”完成申请（通常需等待 168 小时）。
-> 风险：解锁会清空数据；刷 `userdata` 会再次清空。**A 阶段用 `fastboot boot`，不改任何分区**，此阶段可随时长按电源键回滚。
+English | [简体中文](03-real-device-test.zh-CN.md)
 
-测试分三阶段，按顺序做，不要跳步：
+> Applies to: Redmi K40S / POCO F4 (`munch`), SM8250-AC.
+> Prerequisite: **bootloader unlocked**. Apply through Xiaomi's unlock tool first (the waiting period is usually 168 hours).
+> Risk: unlocking wipes data; flashing `userdata` wipes it again. **Stage A uses `fastboot boot` and writes nothing**, so it can always be rolled back by holding power.
 
-| 阶段 | 动作 | 破坏性 | 目标 |
+Three stages, in order. Do not skip.
+
+| Stage | Action | Destructive | Goal |
 | --- | --- | --- | --- |
-| A | `fastboot boot boot.img` | 无 | UEFI 菜单、DarwinBoot、XNU 控制台 |
-| B | `fastboot flash boot_a/boot_b` | 可回滚 | 断电重启仍能进 UniXNU |
-| C | `fastboot flash userdata` | **清空数据** | iOS Data 卷挂载、进入用户态 |
+| A | `fastboot boot boot.img` | no | UEFI menu, DarwinBoot, XNU console |
+| B | `fastboot flash boot_a/boot_b` | recoverable | UniXNU survives a reboot |
+| C | `fastboot flash userdata` | **wipes data** | iOS Data volume mounts, userland starts |
 
 ---
 
-## 0. 准备清单
+## 0. Checklist
 
-- Windows/Linux/macOS 主机 + `platform-tools`（adb/fastboot）。
-- 原装或质量可靠的 USB-C 数据线。
-- 电量 ≥ 50%。
-- 下载对应版本的**官方 fastboot ROM**（munch），用于回滚：`munch_images_*.tgz`（小米官网/XDA）。
-- 一台能保存日志的电脑（A 阶段开始后 USB 会重新枚举）。
-
-检查工具：
+- Host with `platform-tools` (Windows/Linux/macOS).
+- A good USB-C cable.
+- Battery ≥ 50%.
+- The matching **official fastboot ROM** for `munch` (`munch_images_*.tgz`) for rollback.
+- A host that can capture serial logs (USB re-enumerates during boot).
 
 ```sh
 adb version
@@ -31,35 +31,35 @@ fastboot --version
 
 ---
 
-## 1. 设备核对与备份
+## 1. Identify and back up
 
-### 1.1 进入 fastboot
+### 1.1 Enter fastboot
 
-关机后按住 **音量下 + 电源**，出现兔子界面即进入 fastboot。
+Power off, then hold **Volume Down + Power** until the fastboot screen appears.
 
 ```sh
 fastboot devices
-fastboot getvar product          # 期望：munch
-fastboot getvar current-slot     # a 或 b
+fastboot getvar product          # expect: munch
+fastboot getvar current-slot     # a or b
 fastboot getvar partition-size:boot_a
 fastboot getvar partition-size:boot_b
 fastboot getvar partition-size:userdata
-fastboot getvar unlocked         # 期望：yes
+fastboot getvar unlocked         # expect: yes
 ```
 
-记录下表（后续所有镜像参数以此为准）：
+Record:
 
-| 项 | 值 | 用途 |
+| Item | Value | Use |
 | --- | --- | --- |
-| product |  | 必须 `munch`，否则停止 |
-| current-slot |  | B 阶段刷哪个 slot |
-| boot_a 字节 |  | 确认 ≥ 192 MiB |
-| boot_b 字节 |  | 同上 |
-| userdata 字节 |  | 计算 LBA，见 1.3 |
+| product |  | must be `munch`, otherwise stop |
+| current-slot |  | which slot stage B flashes |
+| boot_a bytes |  | must be ≥ 192 MiB |
+| boot_b bytes |  | same |
+| userdata bytes |  | LBA calculation, see 1.3 |
 
-### 1.2 备份原厂 boot / dtbo（强烈建议）
+### 1.2 Back up boot / dtbo (strongly recommended)
 
-有 root（Magisk/KernelSU）时，开机后执行：
+With root (Magisk/KernelSU) on Android:
 
 ```sh
 adb shell su -c 'dd if=/dev/block/by-name/boot_a of=/sdcard/boot_a.img'
@@ -70,199 +70,196 @@ adb pull /sdcard/boot_b.img
 adb pull /sdcard/dtbo.img
 ```
 
-没有 root 时，用官方 fastboot ROM 里的 `boot.img` 作为回滚镜像（推荐至少准备这一份）。
+Without root, extract `boot.img` from the official fastboot ROM and keep that as the rollback image.
 
-### 1.3 计算 userdata 的 LBA
+### 1.3 Compute the userdata LBAs
 
-`board.toml` 里的 `first_lba/last_lba` 必须与真机 GPT 一致。取 `fastboot getvar partition-size:userdata` 的字节数：
+`board.toml` `[userdata] first_lba/last_lba` must match the device GPT. From `fastboot getvar partition-size:userdata`:
 
 ```
-first_lba ≈ 分区起始扇区（需从 GPT 读，见下）
-last_lba  = floor(分区字节数 / 4096) + first_lba - 1
+first_lba = the partition's first sector (read the GPT, below)
+last_lba  = floor(bytes / 4096) + first_lba - 1
 ```
 
-读取 GPT（root）：
+Read the GPT (root):
 
 ```sh
 adb shell su -c 'sgdisk -p /dev/block/sda' | grep userdata
-# 或
+# or
 adb shell su -c 'parted /dev/block/sda unit s print' | grep userdata
 ```
 
-把结果填入 `unixnu-munch/board.toml` 的 `[userdata]`，重新构建 payload/boot，否则 C 阶段会写错位置。
+Write the result into `unixnu-munch/board.toml` and rebuild the payload and boot image. Otherwise stage C writes to the wrong place.
 
-### 1.4 提取原厂 DT（用于替换 alioth 派生的固件 DTB）
+### 1.4 Extract the stock DT (to replace the alioth-derived firmware DTB)
 
 ```sh
-# dtbo 分区里是 overlay，boot 分区里是基础 DT；先用 magiskboot 解包
-magiskboot unpack boot_a.img          # 生成 kernel / ramdisk / dtb
+magiskboot unpack boot_a.img          # produces kernel / ramdisk / dtb
 dtc -I dtb -O dts dtb -o munch-stock.dts
 ```
 
-把 `munch-stock.dts` 与 `uefi/Resources/DTBs/munch.dts` 对比，重点核对：
-`qcom,board-id`（K40S 为 `<0x32 0x00>`）、`/memory`、`/reserved-memory/cont_splash_region`。
-确认后替换 `uefi/Resources/DTBs/munch.dts` 并重新构建，这是 P0 阶段最值得先做的一步。
+Compare with `uefi/Resources/DTBs/munch.dts`. Check `qcom,board-id` (K40S is `<0x32 0x00>`), `/memory` and `/reserved-memory/cont_splash_region`. Replace the file and rebuild when they differ. This is the single most useful step before P0.
 
 ---
 
-## A 阶段：非破坏性启动
+## Stage A: non-destructive boot
 
 ```sh
 fastboot boot path/to/boot.img
 ```
 
-`fastboot boot` 只把镜像加载进内存，不写分区；失败时设备会自动重启回 Android。
+`fastboot boot` loads the image into RAM only. On failure the phone reboots back into Android.
 
-### A1 期望现象（按顺序）
+### A1 expected observations, in order
 
-| # | 检查点 | 现象 | 失败时看 |
+| # | Checkpoint | Observation | If it fails |
 | --- | --- | --- | --- |
-| A1 | UEFI 初始化 | 屏幕保持小米 logo/黑屏数秒后出现 UniXNU 菜单 | 一直黑屏 → 固件未跑起来（见 4.1） |
-| A2 | 菜单 | 屏上有 `Boot` 条目，倒计时 3 秒 | 有菜单无条目 → payload 未被发现（4.2） |
-| A3 | DarwinBoot | 选择后出现 UniXNU/DarwinBoot 文本或彩色条 | 卡住 → 4.3 |
-| A4 | XNU 控制台 | 屏幕出现内核日志、`Darwin Kernel Version` | panic → 拍照记录（4.4） |
-| A5 | 根卷 | 日志出现 UFS/IOMedia/root 相关行 | 见 4.5 |
+| A1 | UEFI init | the Xiaomi logo or a black screen for a few seconds, then the UniXNU menu | no menu at all → 4.1 |
+| A2 | menu | a `Boot` entry with a 3 s countdown | menu but no entry → 4.2 |
+| A3 | DarwinBoot | UniXNU/DarwinBoot text or colour bands | hang → 4.3 |
+| A4 | XNU console | kernel log lines, `Darwin Kernel Version` | panic → 4.4 |
+| A5 | root volume | UFS/IOMedia/root lines | 4.5 |
 
-### A2 按键操作
+### A2 controls
 
-- 音量加/减移动，电源键确认（`ButtonsDxe` 已把电源键映射为 ENTER）。
-- 若按键无效：插 **USB 键盘**，用方向键+回车操作（固件包含 UsbKbDxe）。
+- Volume up/down moves, power confirms (`ButtonsDxe` maps power to ENTER).
+- If the buttons do nothing, plug in a **USB keyboard** and use arrows + Enter (UsbKbDxe is in the firmware).
 
-### A3 抓日志（关键）
+### A3 capture logs
 
-系统启动后，USB 会重新枚举为 CDC-ACM 串口（VID:PID `1209:316d`，名 `QcomXnuUsbDebug`）：
+After the kernel starts, USB re-enumerates as a CDC-ACM port (VID:PID `1209:316d`, `QcomXnuUsbDebug`):
 
-- Linux：`dmesg | tail` 找到 `/dev/ttyACM0`，然后
+- Linux: find `/dev/ttyACM0`, then
   `picocom -b 115200 /dev/ttyACM0 | tee munch-boot-$(date +%s).log`
-- Windows：设备管理器确认 COM 号，用 PuTTY（Serial，115200 8N1）保存日志。
-- macOS：`screen /dev/tty.usbmodem* 115200`，`Ctrl-A` `H` 记录。
+- Windows: note the COM port in Device Manager, use PuTTY (Serial, 115200 8N1) and log to file.
+- macOS: `screen /dev/tty.usbmodem* 115200`, `Ctrl-A` `H`.
 
-日志里必须有（按顺序）：
+Expected, in order:
 
 ```
-UNIXNU: ...            # 固件/菜单
-DARWINBOOT: ...        # 交接
-Darwin Kernel Version  # 内核
-TOUCH start=1          # 触控探针（若带 native-touch=1）
+UNIXNU: ...            # firmware/menu
+DARWINBOOT: ...        # handoff
+Darwin Kernel Version  # kernel
+TOUCH start=1          # touch probe (with native-touch=1)
 ```
 
-把日志和屏幕照片一起存档，填入第 5 节记录表。
+Archive the log and a photo of the screen in the table at section 5.
 
 ---
 
-## B 阶段：写入 boot 分区（可选）
+## Stage B: write the boot partition (optional)
 
-A 阶段连续三次能到 A4 再做。
+Only after three consecutive successful stage-A runs reaching A4.
 
 ```sh
 fastboot flash boot_a boot.img
-# 如果 current-slot=b 且希望从 b 启动：
+# if current-slot=b and you want to boot from b:
 fastboot flash boot_b boot.img
 fastboot --set-active=b
 ```
 
-**回滚**：
+**Rollback**:
 
 ```sh
 fastboot flash boot_a stock-boot.img
 fastboot flash boot_b stock-boot.img
 ```
 
-或直接 `fastboot reboot`，再用官方 ROM 的 `flash_all.bat` 全量恢复。
+Or `fastboot reboot` and restore fully with the official ROM's `flash_all.bat`.
 
 ---
 
-## C 阶段：安装 userdata（危险，最后做）
+## Stage C: install userdata (destructive, last)
 
-只在 B 阶段稳定、且已核对 1.3 的 LBA 后执行。
+Only after stage B is stable and the LBAs from 1.3 are verified.
 
 ```sh
 fastboot flash userdata userdata-root.img
 ```
 
-耗时较长（数 GB）。完成后重启，观察日志中：
+This takes a while (several GiB). After reboot, watch the log for:
 
-- APFS 容器/卷出现；
-- `launchd` 启动；
-- Data 卷挂载结果。
+- the APFS container/volume;
+- `launchd` starting;
+- the Data volume mount result.
 
-失败特征与对应处理见 4.5/4.6。
+Failure branches: 4.5 / 4.6.
 
 ---
 
-## 4. 故障分支
+## 4. Failure branches
 
-### 4.1 A1 黑屏/无菜单
+### 4.1 A1: black screen, no menu
 
-1. 确认 `fastboot getvar product` 是 `munch`。
-2. 确认用的是 `boot.img` 而不是 `SILICIUM_UEFI.fd`。
-3. 换用 alioth 的 `Binaries/alioth` 与 `Binaries/munch` 逐项对比；若仍黑屏，说明厂商 DXE 不兼容，需要按 D2 提取 K40S 自己的 DXE。
-4. 检查 `boot.json`（Release 产物里）中的 `ramdisk_bytes` 是否非 0。
+1. Confirm `fastboot getvar product` is `munch`.
+2. Confirm you are booting `boot.img`, not `SILICIUM_UEFI.fd`.
+3. Compare `Binaries/munch` with `Binaries/alioth`; if the screen stays black, the vendor DXE set is incompatible and must be extracted (D2).
+4. Check `boot.json` in the release: `ramdisk_bytes` must be nonzero.
 
-### 4.2 有菜单但没有 Boot 条目
+### 4.2 Menu appears but has no Boot entry
 
-说明 UEFI 没找到 payload 的 FAT 卷：
+The UEFI cannot find the payload FAT volume:
 
-- `boot.json` 的 `ramdisk_bytes` 必须是 176 MiB 左右；
-- 固件 FDF 必须包含 `UniXNURamDiskDxe`、`DiskIoDxe`、`Fat`；
-- 串口日志应有 `UNIXNURAMDISK: initrd block device`。
+- `boot.json` `ramdisk_bytes` should be around 176 MiB;
+- the FDF must contain `UniXNURamDiskDxe`, `DiskIoDxe` and `Fat`;
+- the serial log should contain `UNIXNURAMDISK: initrd block device`.
 
-### 4.3 卡在 DarwinBoot
+### 4.3 Hang in DarwinBoot
 
-- 90% 是 payload 里的 `kernel.macho.adt` 与 `kernel.macho` 不匹配，或 `unixnu.toml` 条目缺失；
-- 重新 `./unixnu build payload` 后重新 `bootimg`，两者必须同批次。
+- almost always a mismatch between `kernel.macho.adt` and `kernel.macho`, or a missing `unixnu.toml` entry;
+- rebuild the payload and then the boot image in one sequence.
 
-### 4.4 内核 panic
+### 4.4 Kernel panic
 
-拍下 panic 屏，或在串口日志里找 `panic(cpu ...)` 首行。常见：
+Photograph the panic screen, or read the first `panic(cpu ...)` line from the serial log.
 
-| panic | 含义 | 处理 |
+| Panic | Meaning | Action |
 | --- | --- | --- |
-| `rootvp not authenticated after mounting` | owner root 信任链未生效 | 确认 `CONFIG_XNU_OWNER_ROOT_TRUST=y`、trust cache 正确 |
-| `offline scratch Data mount failed: 2` | Data 卷未通过 RamBlock 发布 | 确认 `CONFIG_XNU_NATIVE_RAM_BLOCK=y` 且 payload 带 Data seed |
-| `Invalid kernel stack pointer` | 从核 SMP 拓扑补丁缺失 | 确认 `native-smp-secondary.patch`、`native-smp-type-clusters.patch` 在 SoC series 中 |
+| `rootvp not authenticated after mounting` | owner root trust chain not active | confirm `CONFIG_XNU_OWNER_ROOT_TRUST=y` and the trust cache |
+| `offline scratch Data mount failed: 2` | Data volume not published through RamBlock | confirm `CONFIG_XNU_NATIVE_RAM_BLOCK=y` and that the payload carries the Data seed |
+| `Invalid kernel stack pointer` | SMP topology patches missing | confirm `native-smp-secondary.patch` and `native-smp-type-clusters.patch` are in the SoC series |
 
-### 4.5 UFS/根卷失败
+### 4.5 UFS / root volume failure
 
-- 检查 DTS `&ufs`、`&ufsphy` 为 `okay`；
-- 检查启动参数 `native-ufs-stream=0xe0`、`native-ufs-stream2=0x4e0`、`native-ufs-root=1`；
-- 若日志显示 UFS 链路起不来，先退回 B 阶段的 Android 系统确认硬件正常。
+- DTS `&ufs` and `&ufsphy` must be `okay`;
+- boot arguments `native-ufs-stream=0xe0`, `native-ufs-stream2=0x4e0`, `native-ufs-root=1`;
+- if the UFS link does not come up, boot Android once to confirm the hardware.
 
-### 4.6 触控无反应
+### 4.6 Touch does nothing
 
-`kits/munch-touch` 的复位脚记录为 GPIO 101，而 munch 厂商 DT 是 GPIO 33。二者必有一个不适用于你的批次：先看串口 `TOUCH start=1` 与 `contacts=` 计数，再决定是否改 `FocalTouchBoard.h`。
-
----
-
-## D2（进阶）：提取 K40S 自己的厂商 DXE
-
-> 只有 A1 失败或充电/按键异常时才需要。
-
-1. 从官方 fastboot ROM 解出 `xbl.elf`（或 root 后 `dd if=/dev/block/by-name/xbl`）。
-2. 用 [UEFITool](https://github.com/LongSoft/UEFITool) 打开，查找 DXE 驱动卷。
-3. 按 `Binaries/alioth/QcomPkg/Drivers/<Name>/` 的目录结构，把同名 `.efi`、`.depex` 放到 `Binaries/munch/...`（`.inf` 可直接复用 alioth 的，`FILE_GUID` 与 `BASE_NAME` 不变）。
-4. `uefi/apply.sh` 在 `Binaries/munch` 已存在时不会覆盖，改完重新构建固件即可。
+`kits/munch-touch` records reset GPIO 101 while the munch vendor DTS uses GPIO 33. One of them does not match your batch: check `TOUCH start=1` and the `contacts=` counter in the serial log, then adjust `FocalTouchBoard.h`.
 
 ---
 
-## 5. 记录表（每次测试复制一份）
+## D2 (advanced): extract the K40S's own vendor DXE
 
-| 项 | 内容 |
+> Only needed when A1 fails or charging/buttons misbehave.
+
+1. Extract `xbl.elf` from the official fastboot ROM (or `dd if=/dev/block/by-name/xbl` with root).
+2. Open it in [UEFITool](https://github.com/LongSoft/UEFITool) and locate the DXE driver volumes.
+3. Mirror the `Binaries/alioth/QcomPkg/Drivers/<Name>/` layout under `Binaries/munch/...` with the same-named `.efi` and `.depex`. The `.inf` wrappers can be reused (same `FILE_GUID` and `BASE_NAME`).
+4. `uefi/apply.sh` does not overwrite an existing `Binaries/munch`; rebuild the firmware afterwards.
+
+---
+
+## 5. Record sheet (copy per run)
+
+| Item | Content |
 | --- | --- |
-| 日期/构建号 |  |
-| 设备型号/代号 |  |
-| 内存容量 | 6 / 8 / 12 GiB |
+| Date / build number |  |
+| Model / codename |  |
+| RAM | 6 / 8 / 12 GiB |
 | current-slot |  |
 | boot.img md5 |  |
-| 到达检查点 | A1 / A2 / A3 / A4 / A5 |
-| 关键日志 |  |
-| panic 首行 |  |
-| 屏幕照片 |  |
-| 下一步 |  |
+| Checkpoint reached | A1 / A2 / A3 / A4 / A5 |
+| Key log lines |  |
+| First panic line |  |
+| Screen photo |  |
+| Next action |  |
 
 ---
 
-## 6. 一键收集环境信息（可选）
+## 6. One-shot environment dump (optional)
 
 ```sh
 cat > collect-munch.sh <<'EOF'
