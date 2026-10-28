@@ -246,8 +246,8 @@ Photograph the panic screen, or read the first `panic(cpu ...)` line from the se
 
 1. Extract `xbl.elf` from the official fastboot ROM (or `dd if=/dev/block/by-name/xbl` with root).
 2. Open it in [UEFITool](https://github.com/LongSoft/UEFITool) and locate the DXE driver volumes.
-3. Mirror the `Binaries/alioth/QcomPkg/Drivers/<Name>/` layout under `Binaries/munch/...` with the same-named `.efi` and `.depex`. The `.inf` wrappers can be reused (same `FILE_GUID` and `BASE_NAME`).
-4. `uefi/apply.sh` does not overwrite an existing `Binaries/munch`; rebuild the firmware afterwards.
+3. Drop the extracted `.efi`/`.depex` under `unixnu-munch/uefi/Binaries/munch/QcomPkg/Drivers/<Name>/`. `uefi/apply.sh` merges that tree over the reference set; the `.inf` wrappers stay as they are.
+4. Rebuild the firmware. The first driver to replace is `PmicDxe` (`FILE_GUID 5776232E-082D-4B75-9A0E-FE1D13F7A5D9`), which faults on the reference set.
 
 ---
 

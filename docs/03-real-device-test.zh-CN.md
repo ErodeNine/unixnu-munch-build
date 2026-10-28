@@ -249,8 +249,8 @@ fastboot flash userdata userdata-root.img
 
 1. 从官方 fastboot ROM 解出 `xbl.elf`（或 root 后 `dd if=/dev/block/by-name/xbl`）。
 2. 用 [UEFITool](https://github.com/LongSoft/UEFITool) 打开，查找 DXE 驱动卷。
-3. 按 `Binaries/alioth/QcomPkg/Drivers/<Name>/` 的目录结构，把同名 `.efi`、`.depex` 放到 `Binaries/munch/...`（`.inf` 可直接复用 alioth 的，`FILE_GUID` 与 `BASE_NAME` 不变）。
-4. `uefi/apply.sh` 在 `Binaries/munch` 已存在时不会覆盖，改完重新构建固件即可。
+3. 把解出的 `.efi`/`.depex` 放到 `unixnu-munch/uefi/Binaries/munch/QcomPkg/Drivers/<Name>/`；`uefi/apply.sh` 会把该目录覆盖到参考集之上，`.inf` 保持不变。
+4. 重新构建固件。第一个需要替换的是 `PmicDxe`（`FILE_GUID 5776232E-082D-4B75-9A0E-FE1D13F7A5D9`），参考集里的它在 K40S 上会出错。
 
 ---
 
