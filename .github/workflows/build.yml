@@ -45,6 +45,9 @@ permissions:
 env:
   DEVICE_REPO: WuBarlynn/unixnu-munch
   DEVICE_REF: main
+  # A tag ending in -ud builds the userdata image as well, so the whole set can be
+  # produced without the manual dispatch form.
+  WANT_USERDATA: ${{ inputs.userdata || contains(github.ref_name, '-ud') }}
   UNIXNU_REPO: FFT-infra/UniXNU
   UNIXNU_REF: main
   UEFI_REPO: FFT-infra/uefi-alioth
@@ -260,7 +263,7 @@ jobs:
         if: always()
         run: |
           rm -f UniXNU/out/ipsw/*/*.dmg || true
-          if [ "${{ inputs.userdata }}" != "true" ]; then
+          if [ "$WANT_USERDATA" != "true" ]; then
             rm -f UniXNU/.cache/firmware/target-volumes/*.dmg || true
           fi
 
@@ -325,7 +328,7 @@ jobs:
             2>&1 | tee "$RUNNER_TEMP/bootimg.log"
 
       - name: Build userdata
-        if: ${{ inputs.userdata }}
+        if: ${{ env.WANT_USERDATA }}
         working-directory: UniXNU
         run: |
           df -h "$GITHUB_WORKSPACE"

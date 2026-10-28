@@ -54,6 +54,23 @@ kernel → package → firmware → payload → boot.img → Release
 git tag v0.1 && git push origin v0.1
 ```
 
+## 最新一次成功构建
+
+run 18（tag `v0.18`）全部步骤通过：内核、package、固件、payload、boot.img。
+
+| 产物 | 大小 | 用途 |
+| --- | --- | --- |
+| `boot.img` | 178.4 MB | `fastboot boot boot.img`（不写分区） |
+| `payload.img` | 176.0 MB | 已包含在 `boot.img` 内 |
+| `kernel.macho` | 120.1 MB | 预链接内核，内嵌两份 VerifiedRoot 策略表 |
+| `boot.json` / `payload.json` / `status.json` | 小文件 | 构建报告 |
+
+`SILICIUM_UEFI.fd` 已嵌入 `boot.img`；后续运行也会单独发布该文件。
+
+`userdata` **不在** Release 里。继承自 SM8250 参考的窗口几何描述的是整个 userdata 分区
+（约 226 GiB），原始镜像无法作为 Release 附件上传。测试手册的 C 阶段因此需要本地构建
+稀疏镜像，或先把 userdata 重新分区/缩小后再进行。
+
 ## 产物
 
 | 文件 | 路径（Release 内） | 说明 |

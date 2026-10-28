@@ -18,6 +18,10 @@ Three stages, in order. Do not skip.
 > the kernel frame-buffer text that `build-boot-progress.py` paints (boot stages and panics),
 > the UEFI menu still takes volume/power or a USB keyboard, and the kernel log arrives on
 > the USB CDC-ACM port. A lock screen, wallpaper or touch input is stage 2.
+>
+> **Ready image:** build-18 (tag `v0.18`) has `boot.img` 178.4 MB; stages A and B need
+> nothing else. Stage C has no release image yet (the full userdata partition is about
+> 226 GiB), so build that image locally first.
 
 ---
 

@@ -53,6 +53,25 @@ Tag pushes build and release automatically:
 git tag v0.1 && git push origin v0.1
 ```
 
+## Latest successful build
+
+Run 18 (tag `v0.18`) completed every step: kernel, package, firmware, payload and boot image.
+
+| Asset | Size | Use |
+| --- | --- | --- |
+| `boot.img` | 178.4 MB | `fastboot boot boot.img` (non-destructive) |
+| `payload.img` | 176.0 MB | contained in `boot.img` |
+| `kernel.macho` | 120.1 MB | prelinked kernel with both VerifiedRoot manifests embedded |
+| `boot.json` / `payload.json` / `status.json` | small | build reports |
+
+`SILICIUM_UEFI.fd` is embedded in `boot.img`; later runs also publish it as its own asset.
+
+`userdata` is **not** part of the release. The window geometry inherited from the
+SM8250 reference describes the full userdata partition (about 226 GiB), so the raw
+image cannot be shipped as a release asset. Stage C in the test manual therefore needs
+either a locally built sparse image, or a repartitioned/shrunk userdata, before it can
+run.
+
 ## Outputs
 
 | File | Path inside the release | Purpose |
