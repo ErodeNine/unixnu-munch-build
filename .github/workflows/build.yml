@@ -85,11 +85,6 @@ jobs:
           path: uefi
           submodules: recursive
 
-      - name: Apply the munch UEFI platform
-        run: |
-          chmod +x device/uefi/apply.sh
-          device/uefi/apply.sh "$GITHUB_WORKSPACE/uefi"
-
       - name: Select Xcode
         run: |
           XCODE_APP=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -n 1)
@@ -112,6 +107,11 @@ jobs:
           xcrun --sdk iphoneos --show-sdk-version
           python3 --version
           df -h "$GITHUB_WORKSPACE"
+
+      - name: Apply the munch UEFI platform
+        run: |
+          chmod +x device/uefi/apply.sh
+          device/uefi/apply.sh "$GITHUB_WORKSPACE/uefi"
 
       - name: Resolve the configuration
         working-directory: UniXNU
@@ -210,15 +210,17 @@ jobs:
         working-directory: UniXNU
         run: |
           mkdir -p "$GITHUB_WORKSPACE/artifacts"
-          files=$(find out -maxdepth 6 -type f \( \
-              -name 'boot.img' -o -name 'boot.json' \
-              -o -name 'payload.img' -o -name 'payload.json' \
-              -o -name 'kernel.macho' -o -name 'kernel.macho.adt' \
-              -o -name 'SILICIUM_UEFI.fd' \
-              -o -name 'userdata-root.img' -o -name 'userdata-root.json' \
-              -o -name '*.log' \))
-          if [ -n "$files" ]; then
-            rsync -R $files "$GITHUB_WORKSPACE/artifacts/"
+          if [ -d out ]; then
+            files=$(find out -maxdepth 6 -type f \( \
+                -name 'boot.img' -o -name 'boot.json' \
+                -o -name 'payload.img' -o -name 'payload.json' \
+                -o -name 'kernel.macho' -o -name 'kernel.macho.adt' \
+                -o -name 'SILICIUM_UEFI.fd' \
+                -o -name 'userdata-root.img' -o -name 'userdata-root.json' \
+                -o -name '*.log' \) || true)
+            if [ -n "$files" ]; then
+              rsync -R $files "$GITHUB_WORKSPACE/artifacts/"
+            fi
           fi
           cp "$GITHUB_WORKSPACE/status.json" "$GITHUB_WORKSPACE/artifacts/" || true
           ls -lR "$GITHUB_WORKSPACE/artifacts" | head -100
