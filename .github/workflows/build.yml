@@ -290,6 +290,9 @@ jobs:
       - name: Build firmware
         working-directory: UniXNU
         id: firmware
+        env:
+          # check-munch.py runs as a preflight script and reads this variable.
+          UNIXNU_UEFI: ${{ github.workspace }}/uefi
         run: |
           set -o pipefail
           ./unixnu build firmware --uefi "$GITHUB_WORKSPACE/uefi" 2>&1 | tee "$RUNNER_TEMP/firmware.log"
