@@ -1,9 +1,9 @@
-run=11 attempt=1 ref=refs/tags/v0.11
+run=12 attempt=1 ref=refs/tags/v0.12
 steps: kernel= package=skipped firmware=skipped payload=skipped boot=skipped
 
 == df
 Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on
-/dev/disk2s5   320Gi   212Gi    88Gi    71%    2.1M  921M    0%   /System/Volumes/Data
+/dev/disk2s5   320Gi   216Gi    84Gi    73%    2.1M  876M    0%   /System/Volumes/Data
 
 == status.json
 {
@@ -77,6 +77,8 @@ Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on
         "build-link-stubs.py",
         "build-libpthread-kernel.py",
         "component:AppleKeyStoreState",
+        "build-verified-root-probe.py --component os --include-systemos",
+        "build-arm-driver.py NativeVirtioBlock --verified-root --verified-root-bundle",
         "component:QcomXnuUsbDebug"
       ],
       "prelink": {
@@ -93,300 +95,8 @@ Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on
           "com.apple.driver.AppleEffaceableStorage",
           "com.apple.driver.AppleIISController",
           "com.apple.driver.AppleM2ScalerCSCDriver",
-          "com.apple.driver.AppleMobileFileIntegrity",
-          "com.apple.driver.ApplePMGR",
-          "com.apple.driver.IODARTFamily",
-          "com.apple.filesystems.apfs",
-          "com.
+          "com.apple.driver.App
 == driver step logs (out/<device>/<os>/<config>/logs)
-
-== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-01-build-corecrypto-14.log
-529 kernel C sources; 0 failures
-Internal unregistered provider archive: libcorecrypto_kernel_noasm.a
-External names absent from kernel: []
-Globals shared with kernel: 63; initialization and intact selftests are still required
-
-== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-02-build-corecrypto-14.log
-529 kernel C sources; 0 failures
-Internal unregistered provider archive: libcorecrypto_kernel_noasm-namespaced.a
-External names absent from kernel: []
-Globals shared with kernel: 0; initialization and intact selftests are still required
-
-== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-06-build-software-aes-bindings.log
-PASS: native AES bound with the recorded original-kernelcache addresses
-
-== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-09-build-storage-bindings.log
-The recorded bindings carry unused symbols: __ZN20IOBlockStorageDevice10gMetaClassE, __ZN20IOBlockStorageDevice11requestIdleEv, __ZN20IOBlockStorageDevice13doSetPriorityEP26IOBlockStorageDeviceExtentjh, __ZN20IOBlockStorageDevice13setPropertiesEP8OSObject, __ZN20IOBlockStorageDevice20doGetProvisionStatusEyyPjP35IOBlockStorageProvisionDeviceExtenty, __ZN20IOBlockStorageDevice4initEP12OSDictionary, __ZN20IOBlockStorageDevice7doUnmapEP26IOBlockStorageDeviceExtentjj, __ZN20IOBlockStorageDeviceC2EPK11OSMetaClass, __ZN20IOBlockStorageDeviceD2Ev, __ZN7IOMedia9metaClassE, __ZNK20IOBlockStorageDevice11getPropertyEPK8OSSymbol, __ZTV20IOBlockStorageDevice
-
-== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/component-ArmCpu.log
-ArmCpu: -Werror build and actual ARM64/iOS 17 object audit passed
-
-== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/component-ArmDTPlatform.log
-ArmDTPlatform: -Werror build and actual ARM64/iOS 17 object audit passed
-
-== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/component-ShengUfs.log
-ShengUfs: -Werror build and actual ARM64/iOS 17 object audit passed
-
-== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/component-SoftwareAES.log
-SoftwareAES: -Werror build and actual ARM64/iOS 17 object audit passed
-
-== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/component-VirtioMmioBlock.log
-VirtioMmioBlock: -Werror build and actual ARM64/iOS 17 object audit passed
-
-== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/kernel-bootstrap.log
-init_sysent.c:3307:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3307 |         { (sy_call_t *)(void (*)(void))abort_with_payload, munge_wlwwwl, _SYSCALL_RET_NONE, AC(abort_with_payload_args), 32}, /* 521 = abort_with_payload */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3313:17: warning: cast from 'int (*)(struct proc *, struct necp_session_open_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3313 |         { (sy_call_t *)(void (*)(void))necp_session_open, munge_w, _SYSCALL_RET_INT_T, AC(necp_session_open_args), 4}, /* 522 = necp_session_open */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3313:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3313 |         { (sy_call_t *)(void (*)(void))necp_session_open, munge_w, _SYSCALL_RET_INT_T, AC(necp_session_open_args), 4}, /* 522 = necp_session_open */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3318:17: warning: cast from 'int (*)(struct proc *, struct necp_session_action_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3318 |         { (sy_call_t *)(void (*)(void))necp_session_action, munge_wwwwww, _SYSCALL_RET_INT_T, AC(necp_session_action_args), 24}, /* 523 = necp_session_action */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3318:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3318 |         { (sy_call_t *)(void (*)(void))necp_session_action, munge_wwwwww, _SYSCALL_RET_INT_T, AC(necp_session_action_args), 24}, /* 523 = necp_session_action */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3335:17: warning: cast from 'int (*)(struct proc *, struct setattrlistat_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3335 |         { (sy_call_t *)(void (*)(void))setattrlistat, munge_wwwwww, _SYSCALL_RET_INT_T, AC(setattrlistat_args), 24}, /* 524 = setattrlistat */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3335:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3335 |         { (sy_call_t *)(void (*)(void))setattrlistat, munge_wwwwww, _SYSCALL_RET_INT_T, AC(setattrlistat_args), 24}, /* 524 = setattrlistat */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3340:17: warning: cast from 'int (*)(struct proc *, struct net_qos_guideline_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3340 |         { (sy_call_t *)(void (*)(void))net_qos_guideline, munge_ww, _SYSCALL_RET_INT_T, AC(net_qos_guideline_args), 8}, /* 525 = net_qos_guideline */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3340:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3340 |         { (sy_call_t *)(void (*)(void))net_qos_guideline, munge_ww, _SYSCALL_RET_INT_T, AC(net_qos_guideline_args), 8}, /* 525 = net_qos_guideline */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3345:17: warning: cast from 'int (*)(struct proc *, struct fmount_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3345 |         { (sy_call_t *)(void (*)(void))fmount, munge_wwww, _SYSCALL_RET_INT_T, AC(fmount_args), 16},          /* 526 = fmount */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3345:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3345 |         { (sy_call_t *)(void (*)(void))fmount, munge_wwww, _SYSCALL_RET_INT_T, AC(fmount_args), 16},          /* 526 = fmount */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3350:17: warning: cast from 'int (*)(struct proc *, struct ntp_adjtime_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3350 |         { (sy_call_t *)(void (*)(void))ntp_adjtime, munge_w, _SYSCALL_RET_INT_T, AC(ntp_adjtime_args), 4},    /* 527 = ntp_adjtime */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3350:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3350 |         { (sy_call_t *)(void (*)(void))ntp_adjtime, munge_w, _SYSCALL_RET_INT_T, AC(ntp_adjtime_args), 4},    /* 527 = ntp_adjtime */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3355:17: warning: cast from 'int (*)(struct proc *, struct ntp_gettime_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3355 |         { (sy_call_t *)(void (*)(void))ntp_gettime, munge_w, _SYSCALL_RET_INT_T, AC(ntp_gettime_args), 4},    /* 528 = ntp_gettime */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3355:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3355 |         { (sy_call_t *)(void (*)(void))ntp_gettime, munge_w, _SYSCALL_RET_INT_T, AC(ntp_gettime_args), 4},    /* 528 = ntp_gettime */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3360:17: warning: cast from 'int (*)(struct proc *, struct os_fault_with_payload_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3360 |         { (sy_call_t *)(void (*)(void))os_fault_with_payload, munge_wlwwwl, _SYSCALL_RET_INT_T, AC(os_fault_with_payload_args), 32}, /* 529 = os_fault_with_payload */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3360:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3360 |         { (sy_call_t *)(void (*)(void))os_fault_with_payload, munge_wlwwwl, _SYSCALL_RET_INT_T, AC(os_fault_with_payload_args), 32}, /* 529 = os_fault_with_payload */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3365:17: warning: cast from 'int (*)(struct proc *, struct kqueue_workloop_ctl_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3365 |         { (sy_call_t *)(void (*)(void))kqueue_workloop_ctl, munge_wlww, _SYSCALL_RET_INT_T, AC(kqueue_workloop_ctl_args), 20}, /* 530 = kqueue_workloop_ctl */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3365:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3365 |         { (sy_call_t *)(void (*)(void))kqueue_workloop_ctl, munge_wlww, _SYSCALL_RET_INT_T, AC(kqueue_workloop_ctl_args), 20}, /* 530 = kqueue_workloop_ctl */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3370:17: warning: cast from 'int (*)(struct proc *, struct __mach_bridge_remote_time_args *, uint64_t *)' (aka 'int (*)(struct proc *, struct __mach_bridge_remote_time_args *, unsigned long long *)') to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3370 |         { (sy_call_t *)(void (*)(void))__mach_bridge_remote_time, munge_l, _SYSCALL_RET_UINT64_T, AC(__mach_bridge_remote_time_args), 8}, /* 531 = __mach_bridge_remote_time */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3370:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3370 |         { (sy_call_t *)(void (*)(void))__mach_bridge_remote_time, munge_l, _SYSCALL_RET_UINT64_T, AC(__mach_bridge_remote_time_args), 8}, /* 531 = __mach_bridge_remote_time */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3376:17: warning: cast from 'int (*)(struct proc *, struct coalition_ledger_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3376 |         { (sy_call_t *)(void (*)(void))coalition_ledger, munge_wwww, _SYSCALL_RET_INT_T, AC(coalition_ledger_args), 16}, /* 532 = coalition_ledger */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3376:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3376 |         { (sy_call_t *)(void (*)(void))coalition_ledger, munge_wwww, _SYSCALL_RET_INT_T, AC(coalition_ledger_args), 16}, /* 532 = coalition_ledger */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3388:17: warning: cast from 'int (*)(struct proc *, struct log_data_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3388 |         { (sy_call_t *)(void (*)(void))log_data, munge_wwww, _SYSCALL_RET_INT_T, AC(log_data_args), 16},      /* 533 = log_data */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3388:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3388 |         { (sy_call_t *)(void (*)(void))log_data, munge_wwww, _SYSCALL_RET_INT_T, AC(log_data_args), 16},      /* 533 = log_data */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3393:17: warning: cast from 'int (*)(struct proc *, struct memorystatus_available_memory_args *, uint64_t *)' (aka 'int (*)(struct proc *, struct memorystatus_available_memory_args *, unsigned long long *)') to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3393 |         { (sy_call_t *)(void (*)(void))memorystatus_available_memory, NULL, _SYSCALL_RET_UINT64_T, 0, 0},     /* 534 = memorystatus_available_memory */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3393:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3393 |         { (sy_call_t *)(void (*)(void))memorystatus_available_memory, NULL, _SYSCALL_RET_UINT64_T, 0, 0},     /* 534 = memorystatus_available_memory */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3398:17: warning: cast from 'int (*)(void)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3398 |         { (sy_call_t *)(void (*)(void))enosys, NULL, _SYSCALL_RET_INT_T, 0, 0},                               /* 535 = enosys */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3398:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3398 |         { (sy_call_t *)(void (*)(void))enosys, NULL, _SYSCALL_RET_INT_T, 0, 0},                               /* 535 = enosys */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3403:17: warning: cast from 'int (*)(struct proc *, struct shared_region_map_and_slide_2_np_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3403 |         { (sy_call_t *)(void (*)(void))shared_region_map_and_slide_2_np, munge_wwww, _SYSCALL_RET_INT_T, AC(shared_region_map_and_slide_2_np_args), 16}, /* 536 = shared_region_map_and_slide_2_np */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3403:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3403 |         { (sy_call_t *)(void (*)(void))shared_region_map_and_slide_2_np, munge_wwww, _SYSCALL_RET_INT_T, AC(shared_region_map_and_slide_2_np_args), 16}, /* 536 = shared_region_map_and_slide_2_np */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3408:17: warning: cast from 'int (*)(struct proc *, struct pivot_root_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3408 |         { (sy_call_t *)(void (*)(void))pivot_root, munge_ww, _SYSCALL_RET_INT_T, AC(pivot_root_args), 8},     /* 537 = pivot_root */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3408:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3408 |         { (sy_call_t *)(void (*)(void))pivot_root, munge_ww, _SYSCALL_RET_INT_T, AC(pivot_root_args), 8},     /* 537 = pivot_root */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3413:17: warning: cast from 'int (*)(struct proc *, struct task_inspect_for_pid_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3413 |         { (sy_call_t *)(void (*)(void))task_inspect_for_pid, munge_www, _SYSCALL_RET_INT_T, AC(task_inspect_for_pid_args), 12}, /* 538 = task_inspect_for_pid */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3413:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3413 |         { (sy_call_t *)(void (*)(void))task_inspect_for_pid, munge_www, _SYSCALL_RET_INT_T, AC(task_inspect_for_pid_args), 12}, /* 538 = task_inspect_for_pid */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3418:17: warning: cast from 'int (*)(struct proc *, struct task_read_for_pid_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3418 |         { (sy_call_t *)(void (*)(void))task_read_for_pid, munge_www, _SYSCALL_RET_INT_T, AC(task_read_for_pid_args), 12}, /* 539 = task_read_for_pid */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3418:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3418 |         { (sy_call_t *)(void (*)(void))task_read_for_pid, munge_www, _SYSCALL_RET_INT_T, AC(task_read_for_pid_args), 12}, /* 539 = task_read_for_pid */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3423:17: warning: cast from 'int (*)(struct proc *, struct preadv_args *, user_ssize_t *)' (aka 'int (*)(struct proc *, struct preadv_args *, long long *)') to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3423 |         { (sy_call_t *)(void (*)(void))sys_preadv, munge_wwwl, _SYSCALL_RET_SSIZE_T, AC(preadv_args), 20},    /* 540 = sys_preadv */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3423:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3423 |         { (sy_call_t *)(void (*)(void))sys_preadv, munge_wwwl, _SYSCALL_RET_SSIZE_T, AC(preadv_args), 20},    /* 540 = sys_preadv */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3428:17: warning: cast from 'int (*)(struct proc *, struct pwritev_args *, user_ssize_t *)' (aka 'int (*)(struct proc *, struct pwritev_args *, long long *)') to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3428 |         { (sy_call_t *)(void (*)(void))sys_pwritev, munge_wwwl, _SYSCALL_RET_SSIZE_T, AC(pwritev_args), 20},  /* 541 = sys_pwritev */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3428:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3428 |         { (sy_call_t *)(void (*)(void))sys_pwritev, munge_wwwl, _SYSCALL_RET_SSIZE_T, AC(pwritev_args), 20},  /* 541 = sys_pwritev */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3433:17: warning: cast from 'int (*)(struct proc *, struct preadv_nocancel_args *, user_ssize_t *)' (aka 'int (*)(struct proc *, struct preadv_nocancel_args *, long long *)') to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3433 |         { (sy_call_t *)(void (*)(void))sys_preadv_nocancel, munge_wwwl, _SYSCALL_RET_SSIZE_T, AC(preadv_nocancel_args), 20}, /* 542 = sys_preadv_nocancel */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3433:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3433 |         { (sy_call_t *)(void (*)(void))sys_preadv_nocancel, munge_wwwl, _SYSCALL_RET_SSIZE_T, AC(preadv_nocancel_args), 20}, /* 542 = sys_preadv_nocancel */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3438:17: warning: cast from 'int (*)(struct proc *, struct pwritev_nocancel_args *, user_ssize_t *)' (aka 'int (*)(struct proc *, struct pwritev_nocancel_args *, long long *)') to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3438 |         { (sy_call_t *)(void (*)(void))sys_pwritev_nocancel, munge_wwwl, _SYSCALL_RET_SSIZE_T, AC(pwritev_nocancel_args), 20}, /* 543 = sys_pwritev_nocancel */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3438:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3438 |         { (sy_call_t *)(void (*)(void))sys_pwritev_nocancel, munge_wwwl, _SYSCALL_RET_SSIZE_T, AC(pwritev_nocancel_args), 20}, /* 543 = sys_pwritev_nocancel */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3443:17: warning: cast from 'int (*)(struct proc *, struct ulock_wait2_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3443 |         { (sy_call_t *)(void (*)(void))sys_ulock_wait2, munge_wwlll, _SYSCALL_RET_INT_T, AC(ulock_wait2_args), 32}, /* 544 = sys_ulock_wait2 */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3443:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3443 |         { (sy_call_t *)(void (*)(void))sys_ulock_wait2, munge_wwlll, _SYSCALL_RET_INT_T, AC(ulock_wait2_args), 32}, /* 544 = sys_ulock_wait2 */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3448:17: warning: cast from 'int (*)(struct proc *, struct proc_info_extended_id_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3448 |         { (sy_call_t *)(void (*)(void))proc_info_extended_id, munge_wwwwllww, _SYSCALL_RET_INT_T, AC(proc_info_extended_id_args), 40}, /* 545 = proc_info_extended_id */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3448:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3448 |         { (sy_call_t *)(void (*)(void))proc_info_extended_id, munge_wwwwllww, _SYSCALL_RET_INT_T, AC(proc_info_extended_id_args), 40}, /* 545 = proc_info_extended_id */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3454:17: warning: cast from 'int (*)(struct proc *, struct tracker_action_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3454 |         { (sy_call_t *)(void (*)(void))tracker_action, munge_www, _SYSCALL_RET_INT_T, AC(tracker_action_args), 12}, /* 546 = tracker_action */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3454:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3454 |         { (sy_call_t *)(void (*)(void))tracker_action, munge_www, _SYSCALL_RET_INT_T, AC(tracker_action_args), 12}, /* 546 = tracker_action */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3466:17: warning: cast from 'int (*)(struct proc *, struct debug_syscall_reject_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3466 |         { (sy_call_t *)(void (*)(void))debug_syscall_reject, munge_l, _SYSCALL_RET_INT_T, AC(debug_syscall_reject_args), 8}, /* 547 = debug_syscall_reject */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3466:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3466 |         { (sy_call_t *)(void (*)(void))debug_syscall_reject, munge_l, _SYSCALL_RET_INT_T, AC(debug_syscall_reject_args), 8}, /* 547 = debug_syscall_reject */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3471:17: warning: cast from 'int (*)(struct proc *, struct debug_syscall_reject_config_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3471 |         { (sy_call_t *)(void (*)(void))sys_debug_syscall_reject_config, munge_lll, _SYSCALL_RET_INT_T, AC(debug_syscall_reject_config_args), 24}, /* 548 = sys_debug_syscall_reject_config */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3471:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3471 |         { (sy_call_t *)(void (*)(void))sys_debug_syscall_reject_config, munge_lll, _SYSCALL_RET_INT_T, AC(debug_syscall_reject_config_args), 24}, /* 548 = sys_debug_syscall_reject_config */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3476:17: warning: cast from 'int (*)(struct proc *, struct graftdmg_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3476 |         { (sy_call_t *)(void (*)(void))graftdmg, munge_wwww, _SYSCALL_RET_INT_T, AC(graftdmg_args), 16},      /* 549 = graftdmg */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3476:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3476 |         { (sy_call_t *)(void (*)(void))graftdmg, munge_wwww, _SYSCALL_RET_INT_T, AC(graftdmg_args), 16},      /* 549 = graftdmg */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3481:17: warning: cast from 'int (*)(struct proc *, struct map_with_linking_np_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3481 |         { (sy_call_t *)(void (*)(void))map_with_linking_np, munge_wwww, _SYSCALL_RET_INT_T, AC(map_with_linking_np_args), 16}, /* 550 = map_with_linking_np */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3481:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3481 |         { (sy_call_t *)(void (*)(void))map_with_linking_np, munge_wwww, _SYSCALL_RET_INT_T, AC(map_with_linking_np_args), 16}, /* 550 = map_with_linking_np */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3486:17: warning: cast from 'int (*)(struct proc *, struct freadlink_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3486 |         { (sy_call_t *)(void (*)(void))freadlink, munge_www, _SYSCALL_RET_INT_T, AC(freadlink_args), 12},     /* 551 = freadlink */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3486:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3486 |         { (sy_call_t *)(void (*)(void))freadlink, munge_www, _SYSCALL_RET_INT_T, AC(freadlink_args), 12},     /* 551 = freadlink */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3491:17: warning: cast from 'int (*)(struct proc *, struct record_system_event_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3491 |         { (sy_call_t *)(void (*)(void))sys_record_system_event, munge_wwww, _SYSCALL_RET_INT_T, AC(record_system_event_args), 16}, /* 552 = sys_record_system_event */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3491:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3491 |         { (sy_call_t *)(void (*)(void))sys_record_system_event, munge_wwww, _SYSCALL_RET_INT_T, AC(record_system_event_args), 16}, /* 552 = sys_record_system_event */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3496:17: warning: cast from 'int (*)(struct proc *, struct mkfifoat_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3496 |         { (sy_call_t *)(void (*)(void))mkfifoat, munge_www, _SYSCALL_RET_INT_T, AC(mkfifoat_args), 12},       /* 553 = mkfifoat */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3496:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3496 |         { (sy_call_t *)(void (*)(void))mkfifoat, munge_www, _SYSCALL_RET_INT_T, AC(mkfifoat_args), 12},       /* 553 = mkfifoat */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3501:17: warning: cast from 'int (*)(struct proc *, struct mknodat_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3501 |         { (sy_call_t *)(void (*)(void))mknodat, munge_wwww, _SYSCALL_RET_INT_T, AC(mknodat_args), 16},        /* 554 = mknodat */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3501:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3501 |         { (sy_call_t *)(void (*)(void))mknodat, munge_wwww, _SYSCALL_RET_INT_T, AC(mknodat_args), 16},        /* 554 = mknodat */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3506:17: warning: cast from 'int (*)(struct proc *, struct ungraftdmg_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
- 3506 |         { (sy_call_t *)(void (*)(void))ungraftdmg, munge_wl, _SYSCALL_RET_INT_T, AC(ungraftdmg_args), 12},    /* 555 = ungraftdmg */
-      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
-init_sysent.c:3506:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
- 3506 |         { (sy_call_t *)(void (*)(void))ungraftdmg, munge_wl, _SYSCALL_RET_INT_T, AC(ungraftdmg_args), 12},    /* 555 = ungraftdmg */
-      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1113 warnings generated.
-135 warnings generated.
-1 warning generated.
-     LDFILELIST bsd
-             CC lastkerneldataconst.o
-clang: warning: no such include directory: '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/libsa' [-Wmissing-include-dirs]
-             CC lastkernelconstructor.o
-clang: warning: no such include directory: '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/libsa' [-Wmissing-include-dirs]
-             CC nonlto.o
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/libsa/lastkernelconstructor.c:31:13: warning: declaration requires a global constructor [-Wglobal-constructors]
-   31 | static void last_kernel_constructor(void) __attribute__ ((constructor));
-      | ~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
-1 warning generated.
-clang: warning: no such include directory: '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/libsa' [-Wmissing-include-dirs]
-             CC version.o
-clang: warning: no such include directory: '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/libsa' [-Wmissing-include-dirs]
-             LD mach.development.bcm2837.unstripped.noctf
-ld: warning: -new_linker is obsolete
-ld: warning: search path '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/fakeroot/usr/local/lib/kernel/platform' not found
-Undefined symbols for architecture arm64:
-  "_mockfs_mountroot", referenced from:
-      _vfstbllist in vfs_conf.o
-  "_mockfs_vfsops", referenced from:
-      _vfstbllist in vfs_conf.o
-  "_mockfs_vnodeop_opv_desc", referenced from:
-      _vfs_opv_descs in vfs_conf.o
-  "_native_legacy_count_exec", referenced from:
-      ___mac_execve in kern_exec.o
-  "_native_legacy_note_exit", referenced from:
-      _proc_exit in kern_exit.o
-  "_native_legacy_paint_userspace_band", referenced from:
-      _load_init_program in kern_exec.o
-      _load_init_program_at_path in kern_exec.o
-      _bsd_ast in kern_sig.o
-  "_sheng_pmgr_run", referenced from:
-      _bsd_init in bsd_init.o
-ld: symbol(s) not found for architecture arm64
-clang++: error: linker command failed with exit code 1 (use -v to see invocation)
-make[3]: *** [/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837//mach.development.bcm2837.unstripped.noctf] Error 1
-make[2]: *** [build_all] Error 2
-make[1]: *** [build_all_bootstrap_DEVELOPMENT^ARM64^BCM2837] Error 2
-make: *** [build] Error 2
-build-xnu-4k-baseline.sh: line 851: make -C .cache/xnu-work "${XNU_BUILD_TARGET:-build}" SDKROOT="${XNU_SDKROOT:-iphoneos}" ARCH_CONFIGS=ARM64 MACHINE_CONFIGS=BCM2837 KERNEL_CONFIGS=DEVELOPMENT ARCH_STRING_FOR_CURRENT_MACHINE_CONFIG=arm64 LARGE_MEMORY_DEFINE=-UARM_LARGE_MEMORY ARM64_LINK_ADDR=0xfffffff007004000 ARM64_PLKSEG_ADDR=0xfffffff004004000 DEPLOYMENT_TARGET_FLAGS="-miphoneos-version-min=17.0 -DXNU_TARGET_OS_IOS" DEPLOYMENT_LINKER_FLAGS="-Wl,-ios_version_min,17.0" RC_DARWIN_KERNEL_VERSION="$XNU_DARWIN" RC_ProjectSourceVersion="$XNU_VERSION" BUILD_LTO=0 BOUND_CHECKS=0 BUILD_WERROR="${XNU_BUILD_WERROR:-0}" MAKEJOBS=-j"${JOBS:-4}" CFLAGS_EXTRA="$EXTRA_CFLAGS" "${EXTRA_MAKE_ARGS[@]}" ${XNU_HOST_MAKE_ARGS[@]+"${XNU_HOST_MAKE_ARGS[@]}"} OBJROOT="$ROOT/build/xnu/ios-obj" SYMROOT="$ROOT/build/xnu/ios-sym" DSTROOT="$ROOT/build/xnu/ios-dst" failed
-
-== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/storage-headers.log
-PASS: 19 public IOStorageFamily headers prepared
 
 == three most recently modified logs anywhere under out/
 
@@ -406,121 +116,66 @@ Checksumming Backup GPT Table…
 Checksumming Backup GPT Header…
                    Backup GPT Header: verified   CRC32 $70D5FE69
 verified   CRC32 $23A465D8
-/dev/disk31         	GUID_partition_scheme          	
-/dev/disk31s1       	Apple_APFS                     	
-/dev/disk32         	EF57347C-0000-11AA-AA11-0030654	
-/dev/disk32s1       	41504653-0000-11AA-AA11-0030654	/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/.cache/firmware/target-volumes/os-mount
-
-== /Users/runner/work/_temp/grow.log
-{
-  "base": "build/owner-data-fixture/owner-data-32.dbr",
-  "gib": 3,
-  "container_bytes": 3221225472,
-  "bytes": 3221225472,
-  "sha256": "5f449aea395ac8e775a499f1213c139b1361b2e894a5738573e18f3333a099b5",
-  "encoded_bytes": 1097856,
-  "encoded_sha256": "8c21f24390141fd3636bd9b616950ec38ff49487cf85d34ee71cb193a9178079",
-  "packed": true
-}
+/dev/disk33         	GUID_partition_scheme          	
+/dev/disk33s1       	Apple_APFS                     	
+/dev/disk34         	EF57347C-0000-11AA-AA11-0030654	
+/dev/disk34s1       	41504653-0000-11AA-AA11-0030654	/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/.cache/firmware/target-volumes/os-mount
 
 == /Users/runner/work/_temp/ipsw.log
 == ipsw: remote https://updates.cdn-apple.com/2025SpringFCS/fullrestores/122-77166/DCA6CFE8-90E9-4B92-880D-3DE171798E40/iPad_Pro_HFR_17.7.11_21H461_Restore.ipsw
 == ipsw: extracting OS (044-76040-038.dmg, 4918 MiB)
 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/ipsw/21H461/044-76040-038.dmg
+== ipsw: extracting Cryptex1,SystemOS (044-76034-038.dmg, 3150 MiB)
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/ipsw/21H461/044-76034-038.dmg
 == ipsw: extracting StaticTrustCache (Firmware/044-76040-038.dmg.trustcache, 0 MiB)
 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/ipsw/21H461/044-76040-038.dmg.trustcache
 == ipsw: extracting Cryptex1,SystemTrustCache (Firmware/044-76034-038.dmg.trustcache, 0 MiB)
 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/ipsw/21H461/044-76034-038.dmg.trustcache
 
-== /Users/runner/work/_temp/kernel.log
-== kernel: patch pgz-aligned-validation.patch
-== kernel: patch public-entitlements-header.patch
-== kernel: patch published-freezer-condition.patch
-== kernel: patch source-corecrypto14-bootstrap.patch
-== kernel: patch source-machine-layer.patch
-== kernel: patch source-pthread-bootstrap.patch
-== kernel: patch zzw-native-adreno-sandbox-grant.patch
-== kernel: patch zzwb-native-sandbox-grant-set-properties.patch
-== kernel: patch zzx-pmap-sync-64bit-pa.patch
-== kernel: patch zzy-native-gpu-addon-mount.patch
-== kernel: patch zzy-staged-system-apps.patch
-== kernel: patch zzyb-native-cryptex-os-view.patch
-== kernel: patch zzyc-owner-skip-launch-constraints.patch
-== kernel: patch native-smp-secondary.patch
-== kernel: patch native-smp-type-clusters.patch
-== kernel: patch sheng-platform-power.patch
-== kernel: patch zzz-boot-progress.patch
-== kernel: patch offline-userspace-ladder.patch
-== kernel: patch offline-exec-count.patch
-== kernel: patch offline-exit-hook.patch
-== kernel: patch 0001-qcom-usb-debug-console.patch
-== kernel: patch 0002-qcom-usb-debug-worker.patch
-== kernel: patch xnu-10063.141.1-security-init.patch
-== kernel: patch xnu-10063.141.1-sparse-index.patch
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/prepare-xnu-source.py
-Restored 26 omitted public headers from Apple; blob hashes verified
-== kernel: bootstrap pass for the compile records
-+ bash /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-xnu-4k-baseline.sh
-clang: warning: no such include directory: '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/libsa' [-Wmissing-include-dirs]
-             CC version.o
-clang: warning: no such include directory: '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/libsa' [-Wmissing-include-dirs]
-             LD mach.development.bcm2837.unstripped.noctf
-ld: warning: -new_linker is obsolete
-ld: warning: search path '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/fakeroot/usr/local/lib/kernel/platform' not found
-Undefined symbols for architecture arm64:
-  "_mockfs_mountroot", referenced from:
-      _vfstbllist in vfs_conf.o
-  "_mockfs_vfsops", referenced from:
-      _vfstbllist in vfs_conf.o
-  "_mockfs_vnodeop_opv_desc", referenced from:
-      _vfs_opv_descs in vfs_conf.o
-  "_native_legacy_count_exec", referenced from:
-      ___mac_execve in kern_exec.o
-  "_native_legacy_note_exit", referenced from:
-      _proc_exit in kern_exit.o
-  "_native_legacy_paint_userspace_band", referenced from:
-      _load_init_program in kern_exec.o
-      _load_init_program_at_path in kern_exec.o
-      _bsd_ast in kern_sig.o
-  "_sheng_pmgr_run", referenced from:
-      _bsd_init in bsd_init.o
-ld: symbol(s) not found for architecture arm64
-clang++: error: linker command failed with exit code 1 (use -v to see invocation)
-make[3]: *** [/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837//mach.development.bcm2837.unstripped.noctf] Error 1
-make[2]: *** [build_all] Error 2
-make[1]: *** [build_all_bootstrap_DEVELOPMENT^ARM64^BCM2837] Error 2
-make: *** [build] Error 2
-build-xnu-4k-baseline.sh: line 851: make -C .cache/xnu-work "${XNU_BUILD_TARGET:-build}" SDKROOT="${XNU_SDKROOT:-iphoneos}" ARCH_CONFIGS=ARM64 MACHINE_CONFIGS=BCM2837 KERNEL_CONFIGS=DEVELOPMENT ARCH_STRING_FOR_CURRENT_MACHINE_CONFIG=arm64 LARGE_MEMORY_DEFINE=-UARM_LARGE_MEMORY ARM64_LINK_ADDR=0xfffffff007004000 ARM64_PLKSEG_ADDR=0xfffffff004004000 DEPLOYMENT_TARGET_FLAGS="-miphoneos-version-min=17.0 -DXNU_TARGET_OS_IOS" DEPLOYMENT_LINKER_FLAGS="-Wl,-ios_version_min,17.0" RC_DARWIN_KERNEL_VERSION="$XNU_DARWIN" RC_ProjectSourceVersion="$XNU_VERSION" BUILD_LTO=0 BOUND_CHECKS=0 BUILD_WERROR="${XNU_BUILD_WERROR:-0}" MAKEJOBS=-j"${JOBS:-4}" CFLAGS_EXTRA="$EXTRA_CFLAGS" "${EXTRA_MAKE_ARGS[@]}" ${XNU_HOST_MAKE_ARGS[@]+"${XNU_HOST_MAKE_ARGS[@]}"} OBJROOT="$ROOT/build/xnu/ios-obj" SYMROOT="$ROOT/build/xnu/ios-sym" DSTROOT="$ROOT/build/xnu/ios-dst" failed
-== kernel: prepare storage headers
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/prepare-storage-headers.py
-== kernel: archive-01-build-corecrypto-14
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-corecrypto-14.py
-== kernel: archive-02-build-corecrypto-14
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-corecrypto-14.py --namespace
-== kernel: component-ArmDTPlatform
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py ArmDTPlatform
-== kernel: component-ArmCpu
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py ArmCpu
-== kernel: component-SoftwareAES
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py SoftwareAES
-== kernel: archive-06-build-software-aes-bindings
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-software-aes-bindings.py
-== kernel: component-VirtioMmioBlock
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py VirtioMmioBlock
-== kernel: component-ShengUfs
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py ShengUfs
-== kernel: archive-09-build-storage-bindings
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-storage-bindings.py --component NativeUfs --archive libShengUfs.a --directory build/sheng-ufs
-The recorded bindings carry unused symbols: __ZN20IOBlockStorageDevice10gMetaClassE, __ZN20IOBlockStorageDevice11requestIdleEv, __ZN20IOBlockStorageDevice13doSetPriorityEP26IOBlockStorageDeviceExtentjh, __ZN20IOBlockStorageDevice13setPropertiesEP8OSObject, __ZN20IOBlockStorageDevice20doGetProvisionStatusEyyPjP35IOBlockStorageProvisionDeviceExtenty, __ZN20IOBlockStorageDevice4initEP12OSDictionary, __ZN20IOBlockStorageDevice7doUnmapEP26IOBlockStorageDeviceExtentjj, __ZN20IOBlockStorageDeviceC2EPK11OSMetaClass, __ZN20IOBlockStorageDeviceD2Ev, __ZN7IOMedia9metaClassE, __ZNK20IOBlockStorageDevice11getPropertyEPK8OSSymbol, __ZTV20IOBlockStorageDevice
-unixnu: python3 failed (1); full log: /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-09-build-storage-bindings.log
+== /Users/runner/work/_temp/policy-os.log
+{
+  "image_bytes": 6077580800,
+  "blocks_verified": 1483785,
+  "image_sha256": "e5634d04a8ac35f024845f583394e0a35deb26a04cb0c00286a8674e25a9a4f2",
+  "volume_uuid": "04769D26-2CA0-4825-B443-E2E5F88300F2",
+  "generation": 1,
+  "source_compressed_sha256": "3f99b859c9728379110b66657c7b15285bcb1925ad8b5726542e2cdcf8b1028d",
+  "source_format": "UDIF",
+  "host_bus_protocol": "Disk Image",
+  "host_media_writable": false,
+  "trusted_key_sha256": "96dac850d7e0816f0a02309d01fcc9645ac4f6e33ab2578c43e871acd83f5078",
+  "actual_sample_indices": [
+    0,
+    1,
+    741892,
+    1483784
+  ],
+  "actual_sample_lengths": [
+    4096,
+    4096,
+    4096,
+    1536
+  ],
+  "real_c_signature_and_block_verification": true,
+  "signature_verification": "openssl RSA3072 PKCS1v1.5 SHA-256",
+  "block_verification": "python sha256 over /dev/rdiskN",
+  "original_image_modified": false,
+  "host_only": true,
+  "boot_root_authenticated": false,
+  "qemu_tested": false,
+  "hardware_tested": false
+}
+
+== /Users/runner/work/_temp/policy-systemos.log
+require one whole virtual media mapping
 
 == /Users/runner/work/_temp/seed.log
 created: /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/build/owner-data-fixture/owner-data-32.cdr
-"disk33" ejected.
+"disk35" ejected.
 {
-  "volume_uuid": "41769321-0EA5-46E4-9D87-46FC8AB6CB62",
+  "volume_uuid": "60463FB2-E948-43A1-A352-428386A2126B",
   "bytes": 33554432,
-  "sha256": "007ac46e8e433c2f21eeefafb5fb582868175f0b85e2f614280864c090c4800a",
+  "sha256": "1ae771435d15b5693da306e849349959d1770814272ba384e69488f3e3cb383d",
   "source_regular_files": 39,
   "source_regular_bytes": 611715,
   "guest_mutable": true,
