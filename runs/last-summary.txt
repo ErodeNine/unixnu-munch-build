@@ -1,9 +1,9 @@
-run=9 attempt=1 ref=refs/tags/v0.9
+run=10 attempt=1 ref=refs/tags/v0.10
 steps: kernel= package=skipped firmware=skipped payload=skipped boot=skipped
 
 == df
 Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on
-/dev/disk2s5   320Gi   211Gi    88Gi    71%    2.1M  926M    0%   /System/Volumes/Data
+/dev/disk2s5   320Gi   212Gi    88Gi    71%    2.1M  919M    0%   /System/Volumes/Data
 
 == status.json
 {
@@ -38,10 +38,8 @@ Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on
         "ArmCpu",
         "SoftwareAES",
         "ShengUfs",
-        "ShengHidInput",
         "VirtioMmioBlock",
         "RamBlock",
-        "GopFramebuffer",
         "XnuPrelink",
         "DarwinBoot",
         "AppleKeyStoreState",
@@ -98,8 +96,178 @@ Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on
           "com.apple.driver.AppleMobileFileIntegrity",
           "com.apple.driver.ApplePMGR",
           "com.apple.driver.IODARTFamily",
-    
+          "com.apple.filesystems.apfs",
+          "com.
 == driver step logs (out/<device>/<os>/<config>/logs)
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-01-build-corecrypto-14.log
+529 kernel C sources; 0 failures
+Internal unregistered provider archive: libcorecrypto_kernel_noasm.a
+External names absent from kernel: []
+Globals shared with kernel: 63; initialization and intact selftests are still required
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-02-build-corecrypto-14.log
+529 kernel C sources; 0 failures
+Internal unregistered provider archive: libcorecrypto_kernel_noasm-namespaced.a
+External names absent from kernel: []
+Globals shared with kernel: 0; initialization and intact selftests are still required
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-06-build-software-aes-bindings.log
+PASS: native AES bound with the recorded original-kernelcache addresses
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-09-build-storage-bindings.log
+PASS: NativeUfs bound to 12 original IOStorageFamily symbols (scripts/data/native-storage-original-bindings.S)
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-10-build-storage-bindings.log
+PASS: NativeVirtioBlock bound to 11 original IOStorageFamily symbols (scripts/data/native-storage-original-bindings.S)
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-12-build-storage-bindings.log
+PASS: NativeRamBlock bound to 11 original IOStorageFamily symbols (scripts/data/native-storage-original-bindings.S)
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-13-build-mockfs-fixture.log
+3 XNU mockfs sources compiled (typed-allocation correction retained); ordinary ARM64 / iOS 17 audited
+Offline minimal-root fixture only; not an APFS driver or iPadOS filesystem
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-14-build-platform-power.log
+PMGR bridge: no reference kernel yet; linked a no-op sheng_pmgr_run. Build the kernel again to link the bridge.
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-15-build-boot-progress.log
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootFaultProbe.c:10:
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_map.h:92:
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_object.h:660:21: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+  660 |         object->purgable = value;
+      |                          ~ ^~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_object.h:749:28: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+  749 |         object->no_pager_reason = value;
+      |                                 ~ ^~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootFaultProbe.c:60:18: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
+   60 |  unsigned long n=snprintf(out,capacity,"p%d %.20s sig%u PC%llx LR%llx E%llx F%llx +%llx bt",
+      |                ~ ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   61 |   f.pid,f.name,signal,f.pc,f.lr,f.esr,f.far,f.slide);
+      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootFaultProbe.c:67:7: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
+   67 |    n+=snprintf(out+n,capacity-n," %llx",pair[1]);
+      |     ~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+4 warnings generated.
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootWatchdogPolicy.c:103:20: warning: declaration shadows a variable in the global scope [-Wshadow]
+  103 |  for(size_t sent=0,total=strlen(policy);sent<total;) {
+      |                    ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/vmmeter.h:139:25: note: previous declaration is here
+  139 | extern struct   vmtotal total;
+      |                         ^
+1 warning generated.
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:17:
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/iokit/IOKit/IOLib.h:49:
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/iokit/IOKit/system.h:61:
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/mach/mach_interface.h:35:
+In file included from ./mach/exc_server.h:70:
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_map.h:92:
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_object.h:660:21: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+  660 |         object->purgable = value;
+      |                          ~ ^~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_object.h:749:28: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+  749 |         object->no_pager_reason = value;
+      |                                 ~ ^~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:473:18: warning: declaration shadows a local variable [-Wshadow]
+  473 |     if (n) {char head[64]; snprintf(head, sizeof head, "[hot] kernel slide=%lx", (unsigned long)vm_kernel_slide); at = put(out, at, cap, head, sizeof head);}
+      |                  ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:315:8: note: previous declaration is here
+  315 |   char head[96];
+      |        ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:488:115: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
+  488 |         for (uint32_t k = i; k < i + 8 && k < words && n > 0 && n < 110; ++k) n += snprintf(row + n, sizeof row - n, " %08x", r[4 + k]);
+      |                                                                                                                 ~ ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:502:112: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
+  502 |         for (uint32_t k = i; k < i + 8 && k < 28 && n > 0 && n < 110; ++k) n += snprintf(row + n, sizeof row - n, " %08x", r[4 + k]);
+      |                                                                                                              ~ ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:512:181: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
+  512 |     for (unsigned w = 0; w < 8 && n > 0 && n < 110; ++w) {uint32_t v = 0xdead; native_adreno_dram_read32(native_adreno_fence_phys + 4 * w, &v); n += snprintf(row + n, sizeof row - n, " %x", v);}
+      |                                                                                                                                                                                   ~ ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:515:183: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
+  515 |     for (unsigned w = 0; w < 8 && n > 0 && n < 110; ++w) {uint32_t v = 0xdead; native_adreno_cached_read32(native_adreno_fence_phys + 4 * w, &v); n += snprintf(row + n, sizeof row - n, " %x", v);}
+      |                                                                                                                                                                                     ~ ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:525:43: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
+  525 |       n += snprintf(row + n, sizeof row - n, " %u:%u/%u/%u", m, native_adreno_method_stats[m][0], native_adreno_method_stats[m][1], native_adreno_method_stats[m][3]);
+      |                                         ~ ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:553:12: warning: declaration shadows a local variable [-Wshadow]
+  553 |       char slot[8];
+      |            ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:313:55: note: previous declaration is here
+  313 | static size_t compose(char *out, size_t cap, uint32_t slot, unsigned now) {
+      |                                                       ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:662:12: warning: declaration shadows a local variable [-Wshadow]
+  662 |       char row[260];
+      |            ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:644:10: note: previous declaration is here
+  644 |     char row[400];
+      |          ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:794:45: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
+  794 |         n += snprintf(row + n, sizeof row - n, " %x/%x/%x/%x", p[4 * i], p[4 * i + 1], p[4 * i + 2], p[4 * i + 3]);
+      |                                           ~ ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:894:106: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
+  894 |     for (unsigned k = 0; k < 5 && native_adreno_map_fail[k][1]; ++k) n += snprintf(row + n, sizeof row - n, " %x x%u", native_adreno_map_fail[k][0], native_adreno_map_fail[k][1]);
+      |                                                                                                        ~ ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:895:36: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
+  895 |     snprintf(row + n, sizeof row - n, " | at last: spans=%u objects=%u iova_pfn=%x handle=%x", native_adreno_map_fail[5][0], native_adreno_map_fail[5][1], native_adreno_map_fail[6][0], native_adreno_map_fail[6][1]);
+      |                                  ~ ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:904:45: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
+  904 |         n += snprintf(row + n, sizeof row - n, " s%u %u/%u r%u %x/%u w%uM", k, native_adreno_client_stats[k][0], native_adreno_client_stats[k][1],
+      |                                           ~ ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:937:110: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
+  937 |     for (unsigned k = 2; k < 24 && n > 0 && (size_t)n < sizeof row; ++k) n += snprintf(row + n, sizeof row - n, " %x", native_adreno_stall[k]);
+      |                                                                                                            ~ ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:945:55: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
+  945 |         if (part) n += snprintf(row + n, sizeof row - n, " @%x:", native_adreno_stall_mem[4 + 17 * (part - 1)]);
+      |                                                     ~ ^
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:947:129: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
+  947 |         for (unsigned k = first; k < first + count && n > 0 && (size_t)n < sizeof row; ++k) n += snprintf(row + n, sizeof row - n, " %x", native_adreno_stall_mem[k]);
+      |                                                                                                                               ~ ^
+17 warnings generated.
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootReset.c:23:
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/iokit/IOKit/IOLib.h:49:
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/iokit/IOKit/system.h:61:
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/mach/mach_interface.h:35:
+In file included from ./mach/exc_server.h:70:
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_map.h:92:
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_object.h:660:21: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+  660 |         object->purgable = value;
+      |                          ~ ^~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_object.h:749:28: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+  749 |         object->no_pager_reason = value;
+      |                                 ~ ^~~~~
+2 warnings generated.
+PASS: strict source-kernel ARM64 boot diagnostic build
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-16-build-link-stubs.log
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/link-stubs/libLinkStubs.a
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-17-build-libpthread-kernel.log
+Cloning into '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/libpthread-work'...
+Matching libpthread: 3 real C sources + bootstrap, ARM64/iOS 17 audit, no unavailable kernel names
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/component-AppleKeyStoreState.log
+AppleKeyStoreState: -Werror build and actual ARM64/iOS 17 object audit passed
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/component-ArmCpu.log
+ArmCpu: -Werror build and actual ARM64/iOS 17 object audit passed
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/component-ArmDTPlatform.log
+ArmDTPlatform: -Werror build and actual ARM64/iOS 17 object audit passed
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/component-QcomXnuUsbDebug.log
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/qcom-usb-debug/libQcomXnuUsbDebug.a
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/component-RamBlock.log
+RamBlock: -Werror build and actual ARM64/iOS 17 object audit passed
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/component-ShengUfs.log
+ShengUfs: -Werror build and actual ARM64/iOS 17 object audit passed
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/component-SoftwareAES.log
+SoftwareAES: -Werror build and actual ARM64/iOS 17 object audit passed
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/component-VirtioMmioBlock.log
+VirtioMmioBlock: -Werror build and actual ARM64/iOS 17 object audit passed
 
 == UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/kernel-bootstrap.log
       |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -298,8 +466,8 @@ init_sysent.c:3506:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 
      LDFILELIST bsd
              CC lastkerneldataconst.o
 clang: warning: no such include directory: '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/libsa' [-Wmissing-include-dirs]
-             CC nonlto.o
              CC lastkernelconstructor.o
+             CC nonlto.o
 clang: warning: no such include directory: '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/libsa' [-Wmissing-include-dirs]
 clang: warning: no such include directory: '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/libsa' [-Wmissing-include-dirs]
 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/libsa/lastkernelconstructor.c:31:13: warning: declaration requires a global constructor [-Wglobal-constructors]
@@ -374,10 +542,10 @@ Checksumming Backup GPT Table…
 Checksumming Backup GPT Header…
                    Backup GPT Header: verified   CRC32 $70D5FE69
 verified   CRC32 $23A465D8
-/dev/disk33         	GUID_partition_scheme          	
-/dev/disk33s1       	Apple_APFS                     	
-/dev/disk34         	EF57347C-0000-11AA-AA11-0030654	
-/dev/disk34s1       	41504653-0000-11AA-AA11-0030654	/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/.cache/firmware/target-volumes/os-mount
+/dev/disk31         	GUID_partition_scheme          	
+/dev/disk31s1       	Apple_APFS                     	
+/dev/disk32         	EF57347C-0000-11AA-AA11-0030654	
+/dev/disk32s1       	41504653-0000-11AA-AA11-0030654	/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/.cache/firmware/target-volumes/os-mount
 
 == /Users/runner/work/_temp/grow.log
 {
@@ -385,9 +553,9 @@ verified   CRC32 $23A465D8
   "gib": 3,
   "container_bytes": 3221225472,
   "bytes": 3221225472,
-  "sha256": "54c562250d1f56384bba550a6fffe19778557fcc8889576b84ed02d1a998ea5a",
+  "sha256": "4d57b35766c03b7182ba0f5ec7e51cccdd07af2251735370388cae35d3b64301",
   "encoded_bytes": 1028224,
-  "encoded_sha256": "c0c63450bcf09d1839621d80be5e72628929239ef6e2d23e2357077b9904b5fa",
+  "encoded_sha256": "ecadab991732ee44c4fc94ac8a2e30b88df7f9657730311c8fe63041526957c7",
   "packed": true
 }
 
@@ -401,44 +569,6 @@ verified   CRC32 $23A465D8
 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/ipsw/21H461/044-76034-038.dmg.trustcache
 
 == /Users/runner/work/_temp/kernel.log
-== kernel: patch native-union-lower-directory.patch
-== kernel: patch native-work-interval-soft-fail.patch
-== kernel: patch native-work-interval-trace.patch
-== kernel: patch native-work-interval-instance.patch
-== kernel: patch non-apple-cache-monitor.patch
-== kernel: patch non-apple-identity-soc-window.patch
-== kernel: patch non-apple-iommu-bootstrap.patch
-== kernel: patch non-apple-pmap-field.patch
-== kernel: patch null-root-media.patch
-== kernel: patch offline-component-load-probes.patch
-== kernel: patch offline-legacy-start.patch
-== kernel: patch offline-native-gpu-broker.patch
-== kernel: patch offline-owner-boot-manifest.patch
-== kernel: patch offline-owner-cache-carrier.patch
-== kernel: patch offline-owner-root-binding-audit.patch
-== kernel: patch offline-owner-root-crypto-probe.patch
-== kernel: patch offline-owner-systemos-mount.patch
-== kernel: patch offline-owner-z-air-init.patch
-== kernel: patch offline-pgz-alignment-probe.patch
-== kernel: patch pgz-aligned-validation.patch
-== kernel: patch public-entitlements-header.patch
-== kernel: patch published-freezer-condition.patch
-== kernel: patch source-corecrypto14-bootstrap.patch
-== kernel: patch source-machine-layer.patch
-== kernel: patch source-pthread-bootstrap.patch
-== kernel: patch zzw-native-adreno-sandbox-grant.patch
-== kernel: patch zzwb-native-sandbox-grant-set-properties.patch
-== kernel: patch zzx-pmap-sync-64bit-pa.patch
-== kernel: patch zzy-native-gpu-addon-mount.patch
-== kernel: patch zzy-staged-system-apps.patch
-== kernel: patch zzyb-native-cryptex-os-view.patch
-== kernel: patch zzyc-owner-skip-launch-constraints.patch
-== kernel: patch native-smp-secondary.patch
-== kernel: patch native-smp-type-clusters.patch
-== kernel: patch sheng-platform-power.patch
-== kernel: patch zzz-boot-progress.patch
-== kernel: patch offline-userspace-ladder.patch
-== kernel: patch offline-exec-count.patch
 == kernel: patch offline-exit-hook.patch
 == kernel: patch 0001-qcom-usb-debug-console.patch
 == kernel: patch 0002-qcom-usb-debug-worker.patch
@@ -480,15 +610,53 @@ make: *** [build] Error 2
 build-xnu-4k-baseline.sh: line 851: make -C .cache/xnu-work "${XNU_BUILD_TARGET:-build}" SDKROOT="${XNU_SDKROOT:-iphoneos}" ARCH_CONFIGS=ARM64 MACHINE_CONFIGS=BCM2837 KERNEL_CONFIGS=DEVELOPMENT ARCH_STRING_FOR_CURRENT_MACHINE_CONFIG=arm64 LARGE_MEMORY_DEFINE=-UARM_LARGE_MEMORY ARM64_LINK_ADDR=0xfffffff007004000 ARM64_PLKSEG_ADDR=0xfffffff004004000 DEPLOYMENT_TARGET_FLAGS="-miphoneos-version-min=17.0 -DXNU_TARGET_OS_IOS" DEPLOYMENT_LINKER_FLAGS="-Wl,-ios_version_min,17.0" RC_DARWIN_KERNEL_VERSION="$XNU_DARWIN" RC_ProjectSourceVersion="$XNU_VERSION" BUILD_LTO=0 BOUND_CHECKS=0 BUILD_WERROR="${XNU_BUILD_WERROR:-0}" MAKEJOBS=-j"${JOBS:-4}" CFLAGS_EXTRA="$EXTRA_CFLAGS" "${EXTRA_MAKE_ARGS[@]}" ${XNU_HOST_MAKE_ARGS[@]+"${XNU_HOST_MAKE_ARGS[@]}"} OBJROOT="$ROOT/build/xnu/ios-obj" SYMROOT="$ROOT/build/xnu/ios-sym" DSTROOT="$ROOT/build/xnu/ios-dst" failed
 == kernel: prepare storage headers
 + python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/prepare-storage-headers.py
-unixnu: [kernel] archives needs component entries for: ShengHidInput
+== kernel: archive-01-build-corecrypto-14
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-corecrypto-14.py
+== kernel: archive-02-build-corecrypto-14
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-corecrypto-14.py --namespace
+== kernel: component-ArmDTPlatform
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py ArmDTPlatform
+== kernel: component-ArmCpu
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py ArmCpu
+== kernel: component-SoftwareAES
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py SoftwareAES
+== kernel: archive-06-build-software-aes-bindings
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-software-aes-bindings.py
+== kernel: component-VirtioMmioBlock
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py VirtioMmioBlock
+== kernel: component-ShengUfs
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py ShengUfs
+== kernel: archive-09-build-storage-bindings
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-storage-bindings.py --component NativeUfs --archive libShengUfs.a --directory build/sheng-ufs
+== kernel: archive-10-build-storage-bindings
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-storage-bindings.py --component NativeVirtioBlock --archive libVirtioMmioBlock.a --directory build/virtio-mmio-block --subset
+== kernel: component-RamBlock
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py RamBlock
+== kernel: archive-12-build-storage-bindings
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-storage-bindings.py --component NativeRamBlock --archive libRamBlock.a --directory build/ram-block --subset
+== kernel: archive-13-build-mockfs-fixture
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-mockfs-fixture.py
+== kernel: archive-14-build-platform-power
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-platform-power.py
+== kernel: archive-15-build-boot-progress
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-boot-progress.py
+== kernel: archive-16-build-link-stubs
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-link-stubs.py
+== kernel: archive-17-build-libpthread-kernel
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-libpthread-kernel.py
+== kernel: component-AppleKeyStoreState
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py AppleKeyStoreState
+== kernel: component-QcomXnuUsbDebug
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/drivers/QcomXnuUsbDebug/scripts/build.py --compile-record /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837/pexpert/DEVELOPMENT/pe_kprintf.o.json --soc soc/Sm8250.h --output /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/qcom-usb-debug --replace
+unixnu: XNU_NATIVE_VIRTIO_BLOCK_ARCHIVE: /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/virtio-mmio-block-verified-bundle/libVirtioMmioBlock.a not found; supply the archive or its build recipe
 
 == /Users/runner/work/_temp/seed.log
 created: /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/build/owner-data-fixture/owner-data-32.cdr
-"disk35" ejected.
+"disk33" ejected.
 {
-  "volume_uuid": "E755B24D-F41E-4492-96FB-DD1C9821960C",
+  "volume_uuid": "158C4F4D-25AD-40C7-91A8-1C80443727ED",
   "bytes": 33554432,
-  "sha256": "c03c808e8a141a00f1baeb181005cde604dfc7ab4b0ea8eaf716ff8925a9441e",
+  "sha256": "b5e12b90d6dd21e42f44767d51e0b37df277b99c84df0584c2b2a2a9c9f2ac62",
   "source_regular_files": 39,
   "source_regular_bytes": 611715,
   "guest_mutable": true,
