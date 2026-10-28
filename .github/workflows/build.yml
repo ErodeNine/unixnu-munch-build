@@ -273,6 +273,11 @@ jobs:
           UNIXNU_UEFI: ${{ github.workspace }}/uefi
         run: |
           set -o pipefail
+          # The bootstrap pass stops at the link, so EXPORT_HDRS never appears, while
+          # build-verified-root-probe.py compiles with the recorded flags and -Werror.
+          for d in libsa libkern osfmk bsd pexpert iokit security; do
+            mkdir -p "out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/$d"
+          done
           ./unixnu build kernel 2>&1 | tee "$RUNNER_TEMP/kernel.log"
 
       - name: Build package
