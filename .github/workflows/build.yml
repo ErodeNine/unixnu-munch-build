@@ -130,36 +130,60 @@ jobs:
           ./unixnu status --json | tee "$GITHUB_WORKSPACE/status.json"
           ./unixnu tree
 
-      - name: Prepare the target IPSW and its volumes
+      - name: Fetch the IPSW volumes over HTTP ranges
         if: ${{ !(inputs.steps == 'kernel' || inputs.steps == 'firmware') }}
         working-directory: UniXNU
         run: |
-          mkdir -p refer
-          URL="${{ inputs.ipsw_url }}"
-          [ -n "$URL" ] || URL="$IPSW_URL"
-          [ -f "refer/$IPSW_NAME" ] || curl -fL --retry 3 -o "refer/$IPSW_NAME" "$URL"
-          python3 scripts/extract-target-volume.py OS --ipsw "refer/$IPSW_NAME"
-          python3 scripts/extract-target-volume.py StaticTrustCache --ipsw "refer/$IPSW_NAME"
-          python3 scripts/extract-target-volume.py Cryptex1,SystemTrustCache --ipsw "refer/$IPSW_NAME"
+          set -o pipefail
+          ./unixnu ipsw fetch OS StaticTrustCache Cryptex1,SystemTrustCache 2>&1 | tee "$RUNNER_TEMP/ipsw.log" || {
+            echo "::error::ipsw fetch failed: $(tail -3 "$RUNNER_TEMP/ipsw.log" | tr '\n' ' ')"
+            exit 1
+          }
 
       - name: Build the trust cache bundle
         if: ${{ !(inputs.steps == 'kernel' || inputs.steps == 'firmware') }}
         working-directory: UniXNU
         run: |
-          python3 "$GITHUB_WORKSPACE/scripts/prepare-static-trustcache.py" \
-            .cache/firmware/target-volumes/044-76040-038.dmg.trustcache \
-            .cache/firmware/target-volumes/static-trustcache.bin
-          python3 scripts/build-original-system-trust.py
+          VOL=.cache/firmware/target-volumes
+          mkdir -p "$VOL"
+          python3 "$GITHUB_WORKSPACE/scripts/prepare-trust-module.py" \
+            out/ipsw/21H461/044-76040-038.dmg.trustcache "$VOL/static-trustcache.bin" \
+            da88460e6e513438d5307e5c526f76497a74754476a24da29f239f0c90120fc2
+          python3 "$GITHUB_WORKSPACE/scripts/prepare-trust-module.py" \
+            out/ipsw/21H461/044-76034-038.dmg.trustcache "$VOL/system-trustcache.bin" \
+            d121ba89167e03aafd00fa687c30cd8ebc4ccafd10c1408adb2ba3de12403651
+          python3 - <<'PY'
+          import hashlib, struct
+          from pathlib import Path
+          vol = Path('.cache/firmware/target-volumes')
+          static = (vol / 'static-trustcache.bin').read_bytes()
+          system = (vol / 'system-trustcache.bin').read_bytes()
+          bundle = struct.pack('<3I', 2, 12, 12 + len(static)) + static + system
+          out = Path('build/original-static-system-trust')
+          out.mkdir(parents=True, exist_ok=True)
+          (out / 'original-static-system.bundle').write_bytes(bundle)
+          print('bundle sha256', hashlib.sha256(bundle).hexdigest())
+          PY
 
       - name: Prepare the Data seed
         if: ${{ !(inputs.steps == 'kernel' || inputs.steps == 'firmware') }}
         working-directory: UniXNU
         run: |
-          OS_DMG=$(ls .cache/firmware/target-volumes/044-*.dmg | head -n 1)
+          set -o pipefail
+          OS_DMG=$(ls out/ipsw/21H461/044-76040-038.dmg | head -n 1)
           mkdir -p .cache/firmware/target-volumes/os-mount
           hdiutil attach -readonly -nobrowse -owners off \
-            -mountpoint .cache/firmware/target-volumes/os-mount "$OS_DMG"
-          python3 scripts/prepare-owner-data-fixture.py
+            -mountpoint .cache/firmware/target-volumes/os-mount "$OS_DMG" \
+            2>&1 | tee "$RUNNER_TEMP/attach.log" || {
+            echo "::error::hdiutil attach failed: $(tail -3 "$RUNNER_TEMP/attach.log" | tr '\n' ' ')"
+            exit 1
+          }
+          python3 scripts/prepare-owner-data-fixture.py \
+            2>&1 | tee "$RUNNER_TEMP/seed.log" || {
+            echo "::error::Data seed failed: $(tail -5 "$RUNNER_TEMP/seed.log" | tr '\n' ' ')"
+            hdiutil detach .cache/firmware/target-volumes/os-mount || true
+            exit 1
+          }
           hdiutil detach .cache/firmware/target-volumes/os-mount
           git submodule update --init --depth 1 drivers/DarwinBoot
           mkdir -p build
@@ -189,7 +213,7 @@ jobs:
       - name: Free the IPSW
         if: always()
         run: |
-          rm -f "UniXNU/refer/$IPSW_NAME" || true
+          rm -f UniXNU/out/ipsw/*/*.dmg || true
           if [ "${{ inputs.userdata }}" != "true" ]; then
             rm -f UniXNU/.cache/firmware/target-volumes/*.dmg || true
           fi

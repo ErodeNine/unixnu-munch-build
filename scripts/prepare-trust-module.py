@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
-"""Unwrap the IPSW's StaticTrustCache IM4P into the raw version-2 module.
+"""Unwrap an IPSW trust-cache IM4P into the raw version-2 module.
 
-unixnu ipsw fetch extracts the manifest member as
-Firmware/044-76040-038.dmg.trustcache, which is an IM4P container. The trust
-bundle builder (scripts/build-original-system-trust.py in UniXNU) reads a raw
-module from .cache/firmware/target-volumes/static-trustcache.bin, so this step
-does the DER unwrap and checks the module against the hash that builder pins.
+`unixnu ipsw fetch StaticTrustCache Cryptex1,SystemTrustCache` extracts the
+manifest members as `Firmware/*.dmg.trustcache`, which are IM4P containers.
+UniXNU's bundle builder reads raw modules from
+`.cache/firmware/target-volumes/`, so this step does the DER unwrap and checks
+each module against the hash that builder pins.
 
-  prepare-static-trustcache.py <member.trustcache> <.cache/.../static-trustcache.bin>
+  prepare-trust-module.py <member.trustcache> <output.bin> [expected-sha256]
 """
 import hashlib
 import struct
 import sys
 from pathlib import Path
 
-EXPECTED = 'da88460e6e513438d5307e5c526f76497a74754476a24da29f239f0c90120fc2'
+EXPECTED = {
+    'static': 'da88460e6e513438d5307e5c526f76497a74754476a24da29f239f0c90120fc2',
+    'system': 'd121ba89167e03aafd00fa687c30cd8ebc4ccafd10c1408adb2ba3de12403651',
+}
 
 
 def der(data, at):
@@ -34,9 +37,10 @@ def der(data, at):
 
 
 def main():
-    if len(sys.argv) != 3:
+    if len(sys.argv) not in (3, 4):
         raise SystemExit(__doc__)
     source, target = Path(sys.argv[1]), Path(sys.argv[2])
+    expected = sys.argv[3] if len(sys.argv) == 4 else None
     data = source.read_bytes()
     tag, sequence, end = der(data, 0)
     if tag != 0x30 or end != len(data):
@@ -53,8 +57,8 @@ def main():
     if len(module) != 24 + struct.unpack_from('<I', module, 20)[0] * 24:
         raise SystemExit('module length does not match its entry count')
     digest = hashlib.sha256(module).hexdigest()
-    if digest != EXPECTED:
-        raise SystemExit(f'static trust module changed: {digest} != {EXPECTED}')
+    if expected and digest != expected:
+        raise SystemExit(f'trust module changed: {digest} != {expected}')
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(module)
     print(f'{target}: {len(module)} bytes sha256={digest}')
