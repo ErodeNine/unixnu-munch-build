@@ -14,6 +14,10 @@
 | B | `fastboot flash boot_a/boot_b` | 可回滚 | 断电重启仍能进 UniXNU |
 | C | `fastboot flash userdata` | **清空数据** | iOS Data 卷挂载、进入用户态 |
 
+> 阶段 1 镜像（v0.9 起）：没有显示后端，也没有触控驱动。屏幕上是 `build-boot-progress.py`
+> 在内核帧缓冲上绘制的启动阶段文本与 panic；UEFI 菜单仍可用音量键/电源键或 USB 键盘操作；
+> 内核日志从 USB CDC-ACM 输出。锁屏、壁纸与触控属于阶段 2。
+
 ---
 
 ## 0. 准备清单

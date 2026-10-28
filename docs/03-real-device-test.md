@@ -14,6 +14,11 @@ Three stages, in order. Do not skip.
 | B | `fastboot flash boot_a/boot_b` | recoverable | UniXNU survives a reboot |
 | C | `fastboot flash userdata` | **wipes data** | iOS Data volume mounts, userland starts |
 
+> Stage 1 image (v0.9 and later): no display backend and no touch driver. The panel shows
+> the kernel frame-buffer text that `build-boot-progress.py` paints (boot stages and panics),
+> the UEFI menu still takes volume/power or a USB keyboard, and the kernel log arrives on
+> the USB CDC-ACM port. A lock screen, wallpaper or touch input is stage 2.
+
 ---
 
 ## 0. Checklist
