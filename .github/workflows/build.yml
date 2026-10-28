@@ -233,37 +233,47 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           # build-boot-progress.py needs Font.h from the Mu-Silicium checkout.
           UNIXNU_UEFI: ${{ github.workspace }}/uefi
-        run: ./unixnu build kernel
+        run: |
+          set -o pipefail
+          ./unixnu build kernel 2>&1 | tee "$RUNNER_TEMP/kernel.log"
 
       - name: Build package
         working-directory: UniXNU
         id: package
-        run: ./unixnu build package
+        run: |
+          set -o pipefail
+          ./unixnu build package 2>&1 | tee "$RUNNER_TEMP/package.log"
 
       - name: Build firmware
         working-directory: UniXNU
         id: firmware
-        run: ./unixnu build firmware --uefi "$GITHUB_WORKSPACE/uefi"
+        run: |
+          set -o pipefail
+          ./unixnu build firmware --uefi "$GITHUB_WORKSPACE/uefi" 2>&1 | tee "$RUNNER_TEMP/firmware.log"
 
       - name: Build payload
         if: ${{ !(inputs.steps == 'kernel' || inputs.steps == 'firmware') }}
         id: payload
         working-directory: UniXNU
         run: |
+          set -o pipefail
           CHIP_ID=$(tr -d '[:space:]' < "$GITHUB_WORKSPACE/config/unique-chip-id.txt")
           ./unixnu build payload \
             --unique-chip-id "$CHIP_ID" \
             --trust-cache build/original-static-system-trust/original-static-system.bundle \
-            --data-ramdisk build/owner-data-fixture/owner-data-3.dbr
+            --data-ramdisk build/owner-data-fixture/owner-data-3.dbr \
+            2>&1 | tee "$RUNNER_TEMP/payload.log"
 
       - name: Build the boot image
         if: ${{ success() && !cancelled() && (github.event_name == 'push' || inputs.steps == 'all' || inputs.steps == 'boot-image') }}
         id: boot
         working-directory: UniXNU
         run: |
+          set -o pipefail
           ./unixnu bootimg \
             --uefi "$GITHUB_WORKSPACE/uefi" \
-            --dtb "$GITHUB_WORKSPACE/uefi/Resources/DTBs/munch.dtb"
+            --dtb "$GITHUB_WORKSPACE/uefi/Resources/DTBs/munch.dtb" \
+            2>&1 | tee "$RUNNER_TEMP/bootimg.log"
 
       - name: Build userdata
         if: ${{ inputs.userdata }}
@@ -359,10 +369,18 @@ jobs:
             echo "== status.json"
             head -c 4000 "$GITHUB_WORKSPACE/status.json" 2>/dev/null || true
             echo
-            for f in $(find UniXNU/out -name '*.log' 2>/dev/null | sort | tail -n 8); do
+            echo "== driver step logs (out/<device>/<os>/<config>/logs)"
+            for f in $(find UniXNU/out -path '*/logs/*.log' 2>/dev/null | sort); do
               echo
               echo "== $f"
-              tail -n 160 "$f"
+              tail -n 250 "$f"
+            done
+            echo
+            echo "== three most recently modified logs anywhere under out/"
+            for f in $(find UniXNU/out -name '*.log' 2>/dev/null -printf '%T@ %p\n' | sort -n | tail -n 3 | cut -d' ' -f2-); do
+              echo
+              echo "== $f (last modified)"
+              tail -n 120 "$f"
             done
             echo
             echo "== step logs captured by the pipeline"
