@@ -17,6 +17,7 @@ on:
           - kernel
           - kernel-payload
           - boot-image
+          - firmware
         default: all
       userdata:
         description: "Also build the userdata image (needs ~20 GB free; may exceed the hosted runner disk)"
@@ -130,7 +131,7 @@ jobs:
           ./unixnu tree
 
       - name: Prepare the target IPSW and its volumes
-        if: ${{ inputs.steps != 'kernel' }}
+        if: ${{ !(inputs.steps == 'kernel' || inputs.steps == 'firmware') }}
         working-directory: UniXNU
         run: |
           mkdir -p refer
@@ -142,12 +143,16 @@ jobs:
           python3 scripts/extract-target-volume.py Cryptex1,SystemTrustCache --ipsw "refer/$IPSW_NAME"
 
       - name: Build the trust cache bundle
-        if: ${{ inputs.steps != 'kernel' }}
+        if: ${{ !(inputs.steps == 'kernel' || inputs.steps == 'firmware') }}
         working-directory: UniXNU
-        run: python3 scripts/build-original-system-trust.py
+        run: |
+          python3 "$GITHUB_WORKSPACE/scripts/prepare-static-trustcache.py" \
+            .cache/firmware/target-volumes/044-76040-038.dmg.trustcache \
+            .cache/firmware/target-volumes/static-trustcache.bin
+          python3 scripts/build-original-system-trust.py
 
       - name: Prepare the Data seed
-        if: ${{ inputs.steps != 'kernel' }}
+        if: ${{ !(inputs.steps == 'kernel' || inputs.steps == 'firmware') }}
         working-directory: UniXNU
         run: |
           OS_DMG=$(ls .cache/firmware/target-volumes/044-*.dmg | head -n 1)
@@ -163,7 +168,7 @@ jobs:
             build/owner-data-fixture/owner-data-3.dbr
 
       - name: Pin the Data seed UUID
-        if: ${{ inputs.steps != 'kernel' }}
+        if: ${{ !(inputs.steps == 'kernel' || inputs.steps == 'firmware') }}
         working-directory: UniXNU
         run: |
           UUID=$(python3 -c "import json;print(json.load(open('build/owner-data-fixture/seed.json'))['volume_uuid'])")
@@ -190,9 +195,12 @@ jobs:
           fi
 
       - name: Build kernel
+        if: ${{ inputs.steps != 'firmware' }}
         working-directory: UniXNU
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          # build-boot-progress.py needs Font.h from the Mu-Silicium checkout.
+          UNIXNU_UEFI: ${{ github.workspace }}/uefi
         run: ./unixnu build kernel
 
       - name: Build package
@@ -206,7 +214,7 @@ jobs:
         run: ./unixnu build firmware --uefi "$GITHUB_WORKSPACE/uefi"
 
       - name: Build payload
-        if: ${{ inputs.steps != 'kernel' }}
+        if: ${{ !(inputs.steps == 'kernel' || inputs.steps == 'firmware') }}
         id: payload
         working-directory: UniXNU
         run: |
