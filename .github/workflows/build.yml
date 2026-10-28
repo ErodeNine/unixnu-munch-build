@@ -181,15 +181,19 @@ jobs:
           python3 scripts/prepare-owner-data-fixture.py \
             2>&1 | tee "$RUNNER_TEMP/seed.log" || {
             echo "::error::Data seed failed: $(tail -5 "$RUNNER_TEMP/seed.log" | tr '\n' ' ')"
-            hdiutil detach .cache/firmware/target-volumes/os-mount || true
+            hdiutil detach .cache/firmware/target-volumes/os-mount -force || true
             exit 1
           }
-          hdiutil detach .cache/firmware/target-volumes/os-mount
-          git submodule update --init --depth 1 drivers/DarwinBoot
+          hdiutil detach .cache/firmware/target-volumes/os-mount -force || true
+          # drivers/DarwinBoot comes from the checkout's recursive submodules.
           mkdir -p build
           python3 scripts/seed-data-grow.py --gib 3 \
             build/owner-data-fixture/owner-data-32.cdr \
-            build/owner-data-fixture/owner-data-3.dbr
+            build/owner-data-fixture/owner-data-3.dbr \
+            2>&1 | tee "$RUNNER_TEMP/grow.log" || {
+            echo "::error::seed grow failed: $(tail -5 "$RUNNER_TEMP/grow.log" | tr '\n' ' ')"
+            exit 1
+          }
 
       - name: Pin the Data seed UUID
         if: ${{ !(inputs.steps == 'kernel' || inputs.steps == 'firmware') }}
@@ -249,7 +253,7 @@ jobs:
             --data-ramdisk build/owner-data-fixture/owner-data-3.dbr
 
       - name: Build the boot image
-        if: ${{ !cancelled() && (github.event_name == 'push' || inputs.steps == 'all' || inputs.steps == 'boot-image') }}
+        if: ${{ success() && !cancelled() && (github.event_name == 'push' || inputs.steps == 'all' || inputs.steps == 'boot-image') }}
         id: boot
         working-directory: UniXNU
         run: |
