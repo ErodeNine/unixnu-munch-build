@@ -118,6 +118,16 @@ jobs:
         working-directory: UniXNU
         run: ./unixnu defconfig "$DEFCONFIG" -D "$GITHUB_WORKSPACE/device"
 
+      - name: Restore the source and kernel build caches
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            UniXNU/out/feeds
+            UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build
+          key: munch-build-${{ hashFiles('device/unixnu.lock', 'device/board.toml', 'device/configs/munch_defconfig') }}-${{ github.run_id }}
+          restore-keys: |
+            munch-build-${{ hashFiles('device/unixnu.lock', 'device/board.toml', 'device/configs/munch_defconfig') }}-
+
       - name: Fetch sources
         working-directory: UniXNU
         env:
@@ -301,6 +311,16 @@ jobs:
           fi
           cp "$GITHUB_WORKSPACE/status.json" "$GITHUB_WORKSPACE/artifacts/" || true
           ls -lR "$GITHUB_WORKSPACE/artifacts" | head -100
+
+      - name: Save the source and kernel build caches
+        if: always()
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            UniXNU/out/feeds
+            UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build
+          key: munch-build-${{ hashFiles('device/unixnu.lock', 'device/board.toml', 'device/configs/munch_defconfig') }}-${{ github.run_id }}
 
       - name: Upload run artifacts
         if: always()
