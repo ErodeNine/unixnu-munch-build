@@ -26,6 +26,7 @@ import hashlib
 import importlib.util
 import json
 import plistlib
+import re
 import shutil
 import stat
 import subprocess
@@ -61,10 +62,14 @@ def attach(dmg):
 
 def whole_disk(image):
     entries = image['system-entities']
-    whole = [e for e in entries if e.get('content-hint') == 'GUID_partition_scheme']
-    if len(whole) != 1:
-        raise SystemExit('require one whole virtual media mapping')
-    return whole[0]['dev-entry'], entries
+    for entry in entries:
+        if entry.get('content-hint') == 'GUID_partition_scheme':
+            return entry['dev-entry'], entries
+    # The SystemOS member is an APFS container on the raw disk, with no GPT wrapper.
+    for entry in entries:
+        if re.fullmatch(r'/dev/disk\d+', entry.get('dev-entry', '')):
+            return entry['dev-entry'], entries
+    raise SystemExit('require one whole virtual media mapping')
 
 
 def volume_uuid_of(device):
@@ -119,12 +124,23 @@ def main():
     if args.mountpoint:
         uuid_text, _ = volume_uuid_of(str(args.mountpoint))
     else:
-        partitions = [e['dev-entry'] for e in entries if e.get('content-hint') != 'GUID_partition_scheme']
         uuid_text = None
-        for device in partitions:
-            uuid_text, _ = volume_uuid_of(device)
-            if uuid_text:
-                break
+        listing = plistlib.loads(subprocess.check_output(['diskutil', 'apfs', 'list', '-plist']))
+        store = Path(whole).name
+        for container in listing.get('Containers', []):
+            if any(s.get('DeviceIdentifier') == store for s in container.get('PhysicalStores', [])):
+                for volume in container.get('Volumes', []):
+                    if volume.get('VolumeUUID'):
+                        uuid_text = volume['VolumeUUID']
+                        break
+        if not uuid_text:
+            for entry in entries:
+                try:
+                    uuid_text, _ = volume_uuid_of(entry['dev-entry'])
+                except subprocess.CalledProcessError:
+                    continue
+                if uuid_text:
+                    break
     if not uuid_text:
         raise SystemExit('no APFS volume UUID on the attached image')
     volume_uuid = uuid.UUID(uuid_text)
