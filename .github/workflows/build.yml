@@ -349,6 +349,9 @@ jobs:
             fi
           fi
           cp "$GITHUB_WORKSPACE/status.json" "$GITHUB_WORKSPACE/artifacts/" || true
+          # The firmware volume is built inside the Mu-Silicium checkout, not under out/.
+          fd=$(find "$GITHUB_WORKSPACE/uefi/Build" -name 'SILICIUM_UEFI.fd' 2>/dev/null | head -n 1)
+          if [ -n "$fd" ]; then rsync -R "$fd" "$GITHUB_WORKSPACE/artifacts/"; fi
           ls -lR "$GITHUB_WORKSPACE/artifacts" | head -100
 
       - name: Save the source cache
