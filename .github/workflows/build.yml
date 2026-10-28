@@ -162,9 +162,32 @@ jobs:
             build/owner-data-fixture/owner-data-32.cdr \
             build/owner-data-fixture/owner-data-3.dbr
 
+      - name: Pin the Data seed UUID
+        if: ${{ inputs.steps != 'kernel' }}
+        working-directory: UniXNU
+        run: |
+          UUID=$(python3 -c "import json;print(json.load(open('build/owner-data-fixture/seed.json'))['volume_uuid'])")
+          echo "Data seed volume UUID: $UUID"
+          python3 - "$GITHUB_WORKSPACE/device/configs/munch_defconfig" "$UUID" <<'PY'
+          import re, sys
+          path, uuid = sys.argv[1], sys.argv[2]
+          text = open(path).read()
+          text, count = re.subn(r'^CONFIG_XNU_OWNER_DATA_VOLUME_UUID=.*$',
+                                f'CONFIG_XNU_OWNER_DATA_VOLUME_UUID="{uuid}"', text, flags=re.M)
+          if count != 1:
+              raise SystemExit('expected exactly one CONFIG_XNU_OWNER_DATA_VOLUME_UUID line')
+          open(path, 'w').write(text)
+          PY
+          # The kernel bakes the UUID in, so re-resolve the configuration.
+          ./unixnu defconfig munch_defconfig -D "$GITHUB_WORKSPACE/device"
+
       - name: Free the IPSW
         if: always()
-        run: rm -f "UniXNU/refer/$IPSW_NAME" || true
+        run: |
+          rm -f "UniXNU/refer/$IPSW_NAME" || true
+          if [ "${{ inputs.userdata }}" != "true" ]; then
+            rm -f UniXNU/.cache/firmware/target-volumes/*.dmg || true
+          fi
 
       - name: Build kernel
         working-directory: UniXNU
