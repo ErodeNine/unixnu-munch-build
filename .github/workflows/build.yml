@@ -301,6 +301,9 @@ jobs:
         if: ${{ !(inputs.steps == 'kernel' || inputs.steps == 'firmware') }}
         id: payload
         working-directory: UniXNU
+        env:
+          # patch-xnu-entry-probe.py reads Font.h from this checkout for the panic screen.
+          UNIXNU_UEFI: ${{ github.workspace }}/uefi
         run: |
           set -o pipefail
           CHIP_ID=$(tr -d '[:space:]' < "$GITHUB_WORKSPACE/config/unique-chip-id.txt")
