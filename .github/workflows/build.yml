@@ -187,8 +187,12 @@ jobs:
           hdiutil detach .cache/firmware/target-volumes/os-mount -force || true
           # drivers/DarwinBoot comes from the checkout's recursive submodules.
           mkdir -p build
-          python3 scripts/seed-data-grow.py --gib 3 \
+          # The fixture writes a raw APFS container; grow needs the packed form.
+          python3 "$GITHUB_WORKSPACE/scripts/pack-data-seed.py" \
             build/owner-data-fixture/owner-data-32.cdr \
+            build/owner-data-fixture/owner-data-32.dbr
+          python3 scripts/seed-data-grow.py --gib 3 \
+            build/owner-data-fixture/owner-data-32.dbr \
             build/owner-data-fixture/owner-data-3.dbr \
             2>&1 | tee "$RUNNER_TEMP/grow.log" || {
             echo "::error::seed grow failed: $(tail -5 "$RUNNER_TEMP/grow.log" | tr '\n' ' ')"
