@@ -1,0 +1,255 @@
+name: build-munch
+
+# Builds every image for the Redmi K40S (munch) port on a macOS runner and
+# publishes them as a GitHub Release plus per-run artifacts.
+#
+# The device code lives in WuBarlynn/unixnu-munch; this repository only holds
+# the pipeline, the fixed inputs and the produced images.
+
+on:
+  workflow_dispatch:
+    inputs:
+      steps:
+        description: "Which images to build"
+        type: choice
+        options:
+          - all
+          - kernel
+          - kernel-payload
+          - boot-image
+        default: all
+      userdata:
+        description: "Also build the userdata image (needs ~20 GB free; may exceed the hosted runner disk)"
+        type: boolean
+        default: false
+      ipsw_url:
+        description: "Override the IPSW URL (empty uses the OS profile)"
+        type: string
+        default: ""
+      release:
+        description: "Publish a GitHub Release with the images"
+        type: boolean
+        default: true
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: build-munch-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  DEVICE_REPO: WuBarlynn/unixnu-munch
+  DEVICE_REF: main
+  UNIXNU_REPO: FFT-infra/UniXNU
+  UNIXNU_REF: main
+  UEFI_REPO: FFT-infra/uefi-alioth
+  UEFI_REF: main
+  DEVICE_NAME: munch
+  DEFCONFIG: munch_defconfig
+  IPSW_NAME: iPad_Pro_HFR_17.7.11_21H461_Restore.ipsw
+  IPSW_URL: https://updates.cdn-apple.com/2025SpringFCS/fullrestores/122-77166/DCA6CFE8-90E9-4B92-880D-3DE171798E40/iPad_Pro_HFR_17.7.11_21H461_Restore.ipsw
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 360
+    steps:
+      - name: Checkout the pipeline repository
+        uses: actions/checkout@v4
+
+      - name: Checkout the device repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.DEVICE_REPO }}
+          ref: ${{ env.DEVICE_REF }}
+          path: device
+          submodules: recursive
+
+      - name: Checkout UniXNU
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.UNIXNU_REPO }}
+          ref: ${{ env.UNIXNU_REF }}
+          path: UniXNU
+          submodules: recursive
+
+      - name: Checkout the Mu-Silicium base firmware
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.UEFI_REPO }}
+          ref: ${{ env.UEFI_REF }}
+          path: uefi
+          submodules: recursive
+
+      - name: Apply the munch UEFI platform
+        run: |
+          chmod +x device/uefi/apply.sh
+          device/uefi/apply.sh "$GITHUB_WORKSPACE/uefi"
+
+      - name: Select Xcode
+        run: |
+          XCODE_APP=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -n 1)
+          [ -n "$XCODE_APP" ] || XCODE_APP=$(ls -d /Applications/Xcode*.app | sort -V | tail -n 1)
+          echo "DEVELOPER_DIR=$XCODE_APP/Contents/Developer" >> "$GITHUB_ENV"
+          "$XCODE_APP/Contents/Developer/usr/bin/xcodebuild" -version
+
+      - name: Install host tools
+        run: |
+          brew install llvm lld mtools dtc
+          if ! command -v unifdef >/dev/null; then
+            brew install unifdef
+            echo "$(brew --prefix unifdef)/bin" >> "$GITHUB_PATH"
+          fi
+
+      - name: Report the toolchain
+        run: |
+          sw_vers
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+          python3 --version
+          df -h "$GITHUB_WORKSPACE"
+
+      - name: Resolve the configuration
+        working-directory: UniXNU
+        run: ./unixnu defconfig "$DEFCONFIG" -D "$GITHUB_WORKSPACE/device"
+
+      - name: Fetch sources
+        working-directory: UniXNU
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: ./unixnu fetch
+
+      - name: Assemble the build tree
+        working-directory: UniXNU
+        run: |
+          ./unixnu status --json | tee "$GITHUB_WORKSPACE/status.json"
+          ./unixnu tree
+
+      - name: Prepare the target IPSW and its volumes
+        if: ${{ inputs.steps != 'kernel' }}
+        working-directory: UniXNU
+        run: |
+          mkdir -p refer
+          URL="${{ inputs.ipsw_url }}"
+          [ -n "$URL" ] || URL="$IPSW_URL"
+          [ -f "refer/$IPSW_NAME" ] || curl -fL --retry 3 -o "refer/$IPSW_NAME" "$URL"
+          python3 scripts/extract-target-volume.py OS --ipsw "refer/$IPSW_NAME"
+          python3 scripts/extract-target-volume.py StaticTrustCache --ipsw "refer/$IPSW_NAME"
+          python3 scripts/extract-target-volume.py Cryptex1,SystemTrustCache --ipsw "refer/$IPSW_NAME"
+
+      - name: Build the trust cache bundle
+        if: ${{ inputs.steps != 'kernel' }}
+        working-directory: UniXNU
+        run: python3 scripts/build-original-system-trust.py
+
+      - name: Prepare the Data seed
+        if: ${{ inputs.steps != 'kernel' }}
+        working-directory: UniXNU
+        run: |
+          OS_DMG=$(ls .cache/firmware/target-volumes/044-*.dmg | head -n 1)
+          mkdir -p .cache/firmware/target-volumes/os-mount
+          hdiutil attach -readonly -nobrowse -owners off \
+            -mountpoint .cache/firmware/target-volumes/os-mount "$OS_DMG"
+          python3 scripts/prepare-owner-data-fixture.py
+          hdiutil detach .cache/firmware/target-volumes/os-mount
+          git submodule update --init --depth 1 drivers/DarwinBoot
+          mkdir -p build
+          python3 scripts/seed-data-grow.py --gib 3 \
+            build/owner-data-fixture/owner-data-32.cdr \
+            build/owner-data-fixture/owner-data-3.dbr
+
+      - name: Free the IPSW
+        if: always()
+        run: rm -f "UniXNU/refer/$IPSW_NAME" || true
+
+      - name: Build kernel
+        working-directory: UniXNU
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: ./unixnu build kernel
+
+      - name: Build package
+        working-directory: UniXNU
+        run: ./unixnu build package
+
+      - name: Build firmware
+        working-directory: UniXNU
+        run: ./unixnu build firmware --uefi "$GITHUB_WORKSPACE/uefi"
+
+      - name: Build payload
+        if: ${{ inputs.steps != 'kernel' }}
+        working-directory: UniXNU
+        run: |
+          CHIP_ID=$(tr -d '[:space:]' < "$GITHUB_WORKSPACE/config/unique-chip-id.txt")
+          ./unixnu build payload \
+            --unique-chip-id "$CHIP_ID" \
+            --trust-cache build/original-static-system-trust/original-static-system.bundle \
+            --data-ramdisk build/owner-data-fixture/owner-data-3.dbr
+
+      - name: Build the boot image
+        if: ${{ !cancelled() && (github.event_name == 'push' || inputs.steps == 'all' || inputs.steps == 'boot-image') }}
+        working-directory: UniXNU
+        run: |
+          ./unixnu bootimg \
+            --uefi "$GITHUB_WORKSPACE/uefi" \
+            --dtb "$GITHUB_WORKSPACE/uefi/Resources/DTBs/munch.dtb"
+
+      - name: Build userdata
+        if: ${{ inputs.userdata }}
+        working-directory: UniXNU
+        run: |
+          df -h "$GITHUB_WORKSPACE"
+          ./unixnu build userdata
+
+      - name: Collect outputs
+        if: always()
+        working-directory: UniXNU
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/artifacts"
+          files=$(find out -maxdepth 6 -type f \( \
+              -name 'boot.img' -o -name 'boot.json' \
+              -o -name 'payload.img' -o -name 'payload.json' \
+              -o -name 'kernel.macho' -o -name 'kernel.macho.adt' \
+              -o -name 'SILICIUM_UEFI.fd' \
+              -o -name 'userdata-root.img' -o -name 'userdata-root.json' \
+              -o -name '*.log' \))
+          if [ -n "$files" ]; then
+            rsync -R $files "$GITHUB_WORKSPACE/artifacts/"
+          fi
+          cp "$GITHUB_WORKSPACE/status.json" "$GITHUB_WORKSPACE/artifacts/" || true
+          ls -lR "$GITHUB_WORKSPACE/artifacts" | head -100
+
+      - name: Upload run artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: munch-${{ github.run_number }}
+          path: ${{ github.workspace }}/artifacts
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Publish the release
+        if: ${{ !cancelled() && (github.event_name == 'push' || (inputs.release && (inputs.steps == 'all' || inputs.steps == 'boot-image'))) }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: munch build ${{ github.run_number }}
+          body: |
+            Redmi K40S (munch) images from run ${{ github.run_number }}.
+
+            These files contain material derived from Apple's iPadOS restore image
+            (kernel prelink, trust cache, Data seed, userdata). Keep this
+            repository private and do not redistribute them.
+
+            Read `docs/03-real-device-test.md` before flashing.
+          files: |
+            ${{ github.workspace }}/artifacts/**/*.img
+            ${{ github.workspace }}/artifacts/**/*.fd
+            ${{ github.workspace }}/artifacts/**/*.macho
+            ${{ github.workspace }}/artifacts/**/*.adt
+            ${{ github.workspace }}/artifacts/**/*.json
+          fail_on_unmatched_files: false
