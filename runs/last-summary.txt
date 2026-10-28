@@ -1,9 +1,9 @@
-run=14 attempt=1 ref=refs/tags/v0.14
+run=15 attempt=1 ref=refs/tags/v0.15
 steps: kernel= package=skipped firmware=skipped payload=skipped boot=skipped
 
 == df
 Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on
-/dev/disk2s5   320Gi   212Gi    87Gi    71%    2.1M  916M    0%   /System/Volumes/Data
+/dev/disk2s5   320Gi   212Gi    88Gi    71%    2.1M  921M    0%   /System/Volumes/Data
 
 == status.json
 {
@@ -79,6 +79,7 @@ Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on
         "component:AppleKeyStoreState",
         "build-verified-root-probe.py --component os --include-systemos",
         "build-arm-driver.py NativeVirtioBlock --verified-root --verified-root-bundle",
+        "build-storage-bindings.py --component NativeVirtioBlock --archive libVirtioMmioBlock.a --directory build/virtio-mmio-block-verified-bundle --subset",
         "component:QcomXnuUsbDebug"
       ],
       "prelink": {
@@ -92,10 +93,7 @@ Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on
           "com.apple.driver.AppleARMPlatform",
           "com.apple.driver.AppleARMWatchdogTimer",
           "com.apple.driver.AppleAudioClockLibs",
-          "com.apple.driver.AppleEffaceableStorage",
-          "com.apple.driver.AppleIISController",
-          "com.apple.driver.AppleM2ScalerCSCDriver",
-          "com.apple.driver.App
+          "com.apple.driver
 == driver step logs (out/<device>/<os>/<config>/logs)
 
 == UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-01-build-corecrypto-14.log
@@ -248,6 +246,9 @@ Built ordinary ARM64/iOS17 probe with original full signed hash table and real X
 
 == UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-20-build-arm-driver.log
 VirtioMmioBlock: -Werror build and actual ARM64/iOS 17 object audit passed
+
+== UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-21-build-storage-bindings.log
+PASS: NativeVirtioBlock bound to 11 original IOStorageFamily symbols (scripts/data/native-storage-original-bindings.S)
 
 == UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/component-AppleKeyStoreState.log
 AppleKeyStoreState: -Werror build and actual ARM64/iOS 17 object audit passed
@@ -468,17 +469,17 @@ init_sysent.c:3506:17: warning: cast from 'int (*)(struct proc *, struct ungraft
 init_sysent.c:3506:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
  3506 |         { (sy_call_t *)(void (*)(void))ungraftdmg, munge_wl, _SYSCALL_RET_INT_T, AC(ungraftdmg_args), 12},    /* 555 = ungraftdmg */
       |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+135 warnings generated.
 1113 warnings generated.
 1 warning generated.
-135 warnings generated.
      LDFILELIST bsd
              CC lastkerneldataconst.o
              CC lastkernelconstructor.o
+             CC nonlto.o
 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/libsa/lastkernelconstructor.c:31:13: warning: declaration requires a global constructor [-Wglobal-constructors]
    31 | static void last_kernel_constructor(void) __attribute__ ((constructor));
       | ~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
 1 warning generated.
-             CC nonlto.o
              CC version.o
              LD mach.development.bcm2837.unstripped.noctf
 ld: warning: -new_linker is obsolete
@@ -526,139 +527,256 @@ make: *** [build] Error 2
 build-xnu-4k-baseline.sh: line 851: make -C .cache/xnu-work "${XNU_BUILD_TARGET:-build}" SDKROOT="${XNU_SDKROOT:-iphoneos}" ARCH_CONFIGS=ARM64 MACHINE_CONFIGS=BCM2837 KERNEL_CONFIGS=DEVELOPMENT ARCH_STRING_FOR_CURRENT_MACHINE_CONFIG=arm64 LARGE_MEMORY_DEFINE=-UARM_LARGE_MEMORY ARM64_LINK_ADDR=0xfffffff007004000 ARM64_PLKSEG_ADDR=0xfffffff004004000 DEPLOYMENT_TARGET_FLAGS="-miphoneos-version-min=17.0 -DXNU_TARGET_OS_IOS" DEPLOYMENT_LINKER_FLAGS="-Wl,-ios_version_min,17.0" RC_DARWIN_KERNEL_VERSION="$XNU_DARWIN" RC_ProjectSourceVersion="$XNU_VERSION" BUILD_LTO=0 BOUND_CHECKS=0 BUILD_WERROR="${XNU_BUILD_WERROR:-0}" MAKEJOBS=-j"${JOBS:-4}" CFLAGS_EXTRA="$EXTRA_CFLAGS" "${EXTRA_MAKE_ARGS[@]}" ${XNU_HOST_MAKE_ARGS[@]+"${XNU_HOST_MAKE_ARGS[@]}"} OBJROOT="$ROOT/build/xnu/ios-obj" SYMROOT="$ROOT/build/xnu/ios-sym" DSTROOT="$ROOT/build/xnu/ios-dst" failed
 
 == UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/kernel.log
-Restored 0 omitted public headers from Apple; blob hashes verified
-In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootFaultProbe.c:10:
-In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_map.h:92:
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_object.h:660:21: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-  660 |         object->purgable = value;
-      |                          ~ ^~~~~
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_object.h:749:28: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-  749 |         object->no_pager_reason = value;
-      |                                 ~ ^~~~~
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootFaultProbe.c:60:18: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
-   60 |  unsigned long n=snprintf(out,capacity,"p%d %.20s sig%u PC%llx LR%llx E%llx F%llx +%llx bt",
-      |                ~ ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   61 |   f.pid,f.name,signal,f.pc,f.lr,f.esr,f.far,f.slide);
-      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootFaultProbe.c:67:7: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
-   67 |    n+=snprintf(out+n,capacity-n," %llx",pair[1]);
-      |     ~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-4 warnings generated.
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootWatchdogPolicy.c:103:20: warning: declaration shadows a variable in the global scope [-Wshadow]
-  103 |  for(size_t sent=0,total=strlen(policy);sent<total;) {
-      |                    ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/vmmeter.h:139:25: note: previous declaration is here
-  139 | extern struct   vmtotal total;
-      |                         ^
+  404 | SYSCTL_INT(_machdep, OID_AUTO, phy_read_delay_panic, CTLFLAG_KERN | CTLFLAG_RW | CTLFLAG_LOCKED,
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  405 |     &phy_read_panic, 0, "if set, report-phy-read-delay timeout panics");
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/sysctl.h:479:2: note: expanded from macro 'SYSCTL_INT'
+  479 |         SYSCTL_OID(parent, nbr, name, CTLTYPE_INT|access, \
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  480 |             ptr, val, sysctl_handle_int, "I", descr); \
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/sysctl.h:416:2: note: expanded from macro 'SYSCTL_OID'
+  416 |         __STARTUP_ARG(sysctl_##parent, _##name,                                 \
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  417 |             SYSCTL, STARTUP_RANK_SECOND, sysctl_register_oid_early,             \
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  418 |             &sysctl_##parent##_##name)
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:764:2: note: expanded from macro '__STARTUP_ARG'
+  764 |         __STARTUP1(name, line, subsystem, rank, func, arg, arg)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:757:12: note: expanded from macro '__STARTUP1'
+  757 |             rank, __STARTUP_FUNC_CAST(func, a), b, \
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:748:6: note: expanded from macro '__STARTUP_FUNC_CAST'
+  748 |             (typeof(func(a))(*)(const void *))func
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/dev/arm64/sysctl.c:406:1: warning: cast from 'void (*)(struct sysctl_oid *)' to 'typeof (sysctl_register_oid_early(&sysctl__machdep_phy_write_delay_panic)) (*)(const void *)' (aka 'void (*)(const void *)') converts to incompatible function type [-Wcast-function-type-strict]
+  406 | SYSCTL_INT(_machdep, OID_AUTO, phy_write_delay_panic, CTLFLAG_KERN | CTLFLAG_RW | CTLFLAG_LOCKED,
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  407 |     &phy_write_panic, 0, "if set, report-phy-write-delay timeout panics");
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/sysctl.h:479:2: note: expanded from macro 'SYSCTL_INT'
+  479 |         SYSCTL_OID(parent, nbr, name, CTLTYPE_INT|access, \
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  480 |             ptr, val, sysctl_handle_int, "I", descr); \
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/sysctl.h:416:2: note: expanded from macro 'SYSCTL_OID'
+  416 |         __STARTUP_ARG(sysctl_##parent, _##name,                                 \
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  417 |             SYSCTL, STARTUP_RANK_SECOND, sysctl_register_oid_early,             \
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  418 |             &sysctl_##parent##_##name)
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:764:2: note: expanded from macro '__STARTUP_ARG'
+  764 |         __STARTUP1(name, line, subsystem, rank, func, arg, arg)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:757:12: note: expanded from macro '__STARTUP1'
+  757 |             rank, __STARTUP_FUNC_CAST(func, a), b, \
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:748:6: note: expanded from macro '__STARTUP_FUNC_CAST'
+  748 |             (typeof(func(a))(*)(const void *))func
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/dev/arm64/sysctl.c:410:1: warning: cast from 'void (*)(struct sysctl_oid *)' to 'typeof (sysctl_register_oid_early(&sysctl__machdep_sim_stretched_io_ns)) (*)(const void *)' (aka 'void (*)(const void *)') converts to incompatible function type [-Wcast-function-type-strict]
+  410 | SYSCTL_QUAD(_machdep, OID_AUTO, sim_stretched_io_ns, CTLFLAG_KERN | CTLFLAG_RW | CTLFLAG_LOCKED,
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  411 |     &simulate_stretched_io, "simulate stretched io in ml_read_io, ml_write_io");
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/sysctl.h:507:2: note: expanded from macro 'SYSCTL_QUAD'
+  507 |         SYSCTL_OID(parent, nbr, name, CTLTYPE_QUAD|access, \
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  508 |             ptr, 0, sysctl_handle_quad, "Q", descr); \
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/sysctl.h:416:2: note: expanded from macro 'SYSCTL_OID'
+  416 |         __STARTUP_ARG(sysctl_##parent, _##name,                                 \
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  417 |             SYSCTL, STARTUP_RANK_SECOND, sysctl_register_oid_early,             \
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  418 |             &sysctl_##parent##_##name)
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:764:2: note: expanded from macro '__STARTUP_ARG'
+  764 |         __STARTUP1(name, line, subsystem, rank, func, arg, arg)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:757:12: note: expanded from macro '__STARTUP1'
+  757 |             rank, __STARTUP_FUNC_CAST(func, a), b, \
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:748:6: note: expanded from macro '__STARTUP_FUNC_CAST'
+  748 |             (typeof(func(a))(*)(const void *))func
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/dev/arm64/sysctl.c:417:1: warning: cast from 'void (*)(struct sysctl_oid *)' to 'typeof (sysctl_register_oid_early(&sysctl__kern_opensource_kernel)) (*)(const void *)' (aka 'void (*)(const void *)') converts to incompatible function type [-Wcast-function-type-strict]
+  417 | SYSCTL_INT(_kern, OID_AUTO, opensource_kernel, CTLFLAG_KERN | CTLFLAG_RD | CTLFLAG_LOCKED,
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  418 |     &opensource_kernel, 0, "Opensource Kernel");
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/sysctl.h:479:2: note: expanded from macro 'SYSCTL_INT'
+  479 |         SYSCTL_OID(parent, nbr, name, CTLTYPE_INT|access, \
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  480 |             ptr, val, sysctl_handle_int, "I", descr); \
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/sysctl.h:416:2: note: expanded from macro 'SYSCTL_OID'
+  416 |         __STARTUP_ARG(sysctl_##parent, _##name,                                 \
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  417 |             SYSCTL, STARTUP_RANK_SECOND, sysctl_register_oid_early,             \
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  418 |             &sysctl_##parent##_##name)
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:764:2: note: expanded from macro '__STARTUP_ARG'
+  764 |         __STARTUP1(name, line, subsystem, rank, func, arg, arg)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:757:12: note: expanded from macro '__STARTUP1'
+  757 |             rank, __STARTUP_FUNC_CAST(func, a), b, \
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:748:6: note: expanded from macro '__STARTUP_FUNC_CAST'
+  748 |             (typeof(func(a))(*)(const void *))func
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/dev/arm64/sysctl.c:435:1: warning: cast from 'void (*)(struct sysctl_oid *)' to 'typeof (sysctl_register_oid_early(&sysctl__machdep_ptrauth_enabled)) (*)(const void *)' (aka 'void (*)(const void *)') converts to incompatible function type [-Wcast-function-type-strict]
+  435 | SYSCTL_PROC(_machdep, OID_AUTO, ptrauth_enabled,
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  436 |     CTLTYPE_INT | CTLFLAG_KERN | CTLFLAG_RD,
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  437 |     0, 0,
+      |     ~~~~~
+  438 |     machdep_ptrauth_enabled, "I", "");
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/sysctl.h:529:2: note: expanded from macro 'SYSCTL_PROC'
+  529 |         SYSCTL_OID(parent, nbr, name, access, \
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  530 |             ptr, arg, handler, fmt, descr)
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/sysctl.h:416:2: note: expanded from macro 'SYSCTL_OID'
+  416 |         __STARTUP_ARG(sysctl_##parent, _##name,                                 \
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  417 |             SYSCTL, STARTUP_RANK_SECOND, sysctl_register_oid_early,             \
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  418 |             &sysctl_##parent##_##name)
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:764:2: note: expanded from macro '__STARTUP_ARG'
+  764 |         __STARTUP1(name, line, subsystem, rank, func, arg, arg)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:757:12: note: expanded from macro '__STARTUP1'
+  757 |             rank, __STARTUP_FUNC_CAST(func, a), b, \
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:748:6: note: expanded from macro '__STARTUP_FUNC_CAST'
+  748 |             (typeof(func(a))(*)(const void *))func
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+3 warnings generated.
+38 warnings generated.
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/dev/arm/unix_signal.c:10:
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/user.h:83:
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/vm.h:136:
+In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/thread.h:98:
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/vm/vm_kern.h:841:29: warning: bitwise operation between different enumeration types ('kmr_flags_t' and 'kmem_flags_t') [-Wenum-enum-conversion]
+  841 | __attribute__((diagnose_if(!KMEM_REALLOC_FLAGS_VALID(flags),
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/vm/vm_kern.h:793:27: note: expanded from macro 'KMEM_REALLOC_FLAGS_VALID'
+  793 |         (((flags) & (KMR_KOBJECT | KMEM_GUARD_LAST | KMEM_KASAN_GUARD | KMR_DATA)) == KMR_DATA || ((flags) & KMR_FREEOLD))
+      |                      ~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/dev/arm/unix_signal.c:105:8: warning: cast from 'void (*)(const struct startup_tunable_spec *)' to 'typeof (kernel_startup_tunable_init(&__startup_TUNABLES_spec_pac_sigreturn_token)) (*)(const void *)' (aka 'void (*)(const void *)') converts to incompatible function type [-Wcast-function-type-strict]
+  105 | static TUNABLE(bool, pac_sigreturn_token, "pac_sigreturn_token", true);
+      |        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:247:2: note: expanded from macro 'TUNABLE'
+  247 |         __TUNABLE(type_t, var, boot_arg)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:711:2: note: expanded from macro '__TUNABLE'
+  711 |         __STARTUP_ARG(var, __LINE__, TUNABLES, STARTUP_RANK_FIRST, \
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  712 |             kernel_startup_tunable_init, &__startup_TUNABLES_spec_ ## var)
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:764:2: note: expanded from macro '__STARTUP_ARG'
+  764 |         __STARTUP1(name, line, subsystem, rank, func, arg, arg)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:757:12: note: expanded from macro '__STARTUP1'
+  757 |             rank, __STARTUP_FUNC_CAST(func, a), b, \
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:748:6: note: expanded from macro '__STARTUP_FUNC_CAST'
+  748 |             (typeof(func(a))(*)(const void *))func
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/dev/arm/unix_signal.c:418:7: warning: cast to smaller integer type 'user32_addr_t' (aka 'unsigned int') from 'mcontext32_t *' (aka 'struct mcontext32 *') [-Wpointer-to-int-cast]
+  418 |                     (user32_addr_t)&((struct user_sigframe32*)sp)->mctx);
+      |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/dev/arm/unix_signal.c:643:67: warning: cast to smaller integer type 'user32_addr_t' (aka 'unsigned int') from 'user32_siginfo_t *' (aka 'struct user32_siginfo *') [-Wpointer-to-int-cast]
+  643 |                     CAST_DOWN_EXPLICIT(user32_addr_t, catcher), infostyle, sig, (user32_addr_t)&((struct user_sigframe32*)sp)->sinfo,
+      |                                                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/dev/arm/unix_signal.c:940:2: warning: 'switch' missing 'default' label [-Wswitch-default]
+  940 |         switch (exception) {
+      |         ^
+5 warnings generated.
+     LDFILELIST bsd
+             CC lastkerneldataconst.o
+             CC lastkernelconstructor.o
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/libsa/lastkernelconstructor.c:31:13: warning: declaration requires a global constructor [-Wglobal-constructors]
+   31 | static void last_kernel_constructor(void) __attribute__ ((constructor));
+      | ~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
 1 warning generated.
-In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:17:
-In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/iokit/IOKit/IOLib.h:49:
-In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/iokit/IOKit/system.h:61:
-In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/mach/mach_interface.h:35:
-In file included from ./mach/exc_server.h:70:
-In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_map.h:92:
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_object.h:660:21: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-  660 |         object->purgable = value;
-      |                          ~ ^~~~~
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_object.h:749:28: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-  749 |         object->no_pager_reason = value;
-      |                                 ~ ^~~~~
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:473:18: warning: declaration shadows a local variable [-Wshadow]
-  473 |     if (n) {char head[64]; snprintf(head, sizeof head, "[hot] kernel slide=%lx", (unsigned long)vm_kernel_slide); at = put(out, at, cap, head, sizeof head);}
-      |                  ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:315:8: note: previous declaration is here
-  315 |   char head[96];
-      |        ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:488:115: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
-  488 |         for (uint32_t k = i; k < i + 8 && k < words && n > 0 && n < 110; ++k) n += snprintf(row + n, sizeof row - n, " %08x", r[4 + k]);
-      |                                                                                                                 ~ ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:502:112: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
-  502 |         for (uint32_t k = i; k < i + 8 && k < 28 && n > 0 && n < 110; ++k) n += snprintf(row + n, sizeof row - n, " %08x", r[4 + k]);
-      |                                                                                                              ~ ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:512:181: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
-  512 |     for (unsigned w = 0; w < 8 && n > 0 && n < 110; ++w) {uint32_t v = 0xdead; native_adreno_dram_read32(native_adreno_fence_phys + 4 * w, &v); n += snprintf(row + n, sizeof row - n, " %x", v);}
-      |                                                                                                                                                                                   ~ ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:515:183: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
-  515 |     for (unsigned w = 0; w < 8 && n > 0 && n < 110; ++w) {uint32_t v = 0xdead; native_adreno_cached_read32(native_adreno_fence_phys + 4 * w, &v); n += snprintf(row + n, sizeof row - n, " %x", v);}
-      |                                                                                                                                                                                     ~ ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:525:43: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
-  525 |       n += snprintf(row + n, sizeof row - n, " %u:%u/%u/%u", m, native_adreno_method_stats[m][0], native_adreno_method_stats[m][1], native_adreno_method_stats[m][3]);
-      |                                         ~ ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:553:12: warning: declaration shadows a local variable [-Wshadow]
-  553 |       char slot[8];
-      |            ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:313:55: note: previous declaration is here
-  313 | static size_t compose(char *out, size_t cap, uint32_t slot, unsigned now) {
-      |                                                       ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:662:12: warning: declaration shadows a local variable [-Wshadow]
-  662 |       char row[260];
-      |            ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:644:10: note: previous declaration is here
-  644 |     char row[400];
-      |          ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:794:45: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
-  794 |         n += snprintf(row + n, sizeof row - n, " %x/%x/%x/%x", p[4 * i], p[4 * i + 1], p[4 * i + 2], p[4 * i + 3]);
-      |                                           ~ ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:894:106: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
-  894 |     for (unsigned k = 0; k < 5 && native_adreno_map_fail[k][1]; ++k) n += snprintf(row + n, sizeof row - n, " %x x%u", native_adreno_map_fail[k][0], native_adreno_map_fail[k][1]);
-      |                                                                                                        ~ ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:895:36: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
-  895 |     snprintf(row + n, sizeof row - n, " | at last: spans=%u objects=%u iova_pfn=%x handle=%x", native_adreno_map_fail[5][0], native_adreno_map_fail[5][1], native_adreno_map_fail[6][0], native_adreno_map_fail[6][1]);
-      |                                  ~ ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:904:45: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
-  904 |         n += snprintf(row + n, sizeof row - n, " s%u %u/%u r%u %x/%u w%uM", k, native_adreno_client_stats[k][0], native_adreno_client_stats[k][1],
-      |                                           ~ ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:937:110: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
-  937 |     for (unsigned k = 2; k < 24 && n > 0 && (size_t)n < sizeof row; ++k) n += snprintf(row + n, sizeof row - n, " %x", native_adreno_stall[k]);
-      |                                                                                                            ~ ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:945:55: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
-  945 |         if (part) n += snprintf(row + n, sizeof row - n, " @%x:", native_adreno_stall_mem[4 + 17 * (part - 1)]);
-      |                                                     ~ ^
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootLog.c:947:129: warning: implicit conversion changes signedness: 'int' to 'unsigned long' [-Wsign-conversion]
-  947 |         for (unsigned k = first; k < first + count && n > 0 && (size_t)n < sizeof row; ++k) n += snprintf(row + n, sizeof row - n, " %x", native_adreno_stall_mem[k]);
-      |                                                                                                                               ~ ^
-17 warnings generated.
-In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch/BootReset.c:23:
-In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/iokit/IOKit/IOLib.h:49:
-In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/iokit/IOKit/system.h:61:
-In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/mach/mach_interface.h:35:
-In file included from ./mach/exc_server.h:70:
-In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_map.h:92:
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_object.h:660:21: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-  660 |         object->purgable = value;
-      |                          ~ ^~~~~
-/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/osfmk/vm/vm_object.h:749:28: warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
-  749 |         object->no_pager_reason = value;
-      |                                 ~ ^~~~~
-2 warnings generated.
-PASS: strict source-kernel ARM64 boot diagnostic build
-build-xnu: QCOM_USB_DEBUG=1 (env=1)
-Traceback (most recent call last):
-  File "<stdin>", line 5, in <module>
-  File "/opt/homebrew/Cellar/python@3.15/3.15.0_1/Frameworks/Python.framework/Versions/3.15/lib/python3.15/pathlib/__init__.py", line 986, in read_text
-    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
-         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/homebrew/Cellar/python@3.15/3.15.0_1/Frameworks/Python.framework/Versions/3.15/lib/python3.15/pathlib/__init__.py", line 970, in open
-    return io.open(self, mode, buffering, encoding, errors, newline)
-           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/virtio-mmio-block-verified-bundle/bindings.json'
-build-xnu-4k-baseline.sh: line 803: python3 - "$VIRTIO_ARCHIVE" "$RAM_BLOCK_ARCHIVE"  <<'PY_BINDINGS'
-import json
-from pathlib import Path
-import sys
-import hashlib
-records = [json.loads(Path(p).with_name('bindings.json').read_text()) for p in sys.argv[1:]]
-for archive, record in zip(sys.argv[1:], records):
-    # The object name is the component's, not the archive's: libVirtioMmioBlock.a holds
-    # NativeVirtioBlock.o and libRamBlock.a holds NativeRamBlock.o. bindings.json records it.
-    obj = Path(archive).with_name(record['component'] + '.o')
-    if hashlib.sha256(obj.read_bytes()).hexdigest() != record['compiled_object_sha256']:
-        raise SystemExit('Re-audit the actual compiled storage object before linking')
-first, second = [record['bindings'] for record in records]
-if any(first.get(name) != value for name, value in second.items()):
-    raise SystemExit('RAM transport imports must match the already linked original storage bindings')
-PY_BINDINGS
- failed
+             CC nonlto.o
+             CC version.o
+             LD mach.development.bcm2837.unstripped.noctf
+ld: warning: -new_linker is obsolete
+ld: warning: search path '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/fakeroot/usr/local/lib/kernel/platform' not found
+Undefined symbols for architecture arm64:
+  "_native_gpu_rows", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+      ...
+  "_native_hid_class_sizes", referenced from:
+      _draw in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_hid_input_meta_status", referenced from:
+      _draw in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_hid_load_status", referenced from:
+      _draw in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_hid_matching_load_status", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_hid_stage", referenced from:
+      _draw in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_hid_touch_status", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_fail_step", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_frame_raw", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_frames", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_hid_reports", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_irq_level", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_irq_low", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_last_x", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_last_y", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_valid", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_ufs_log_read", referenced from:
+      _writer in libBootProgress.a[7](BootLog.o)
+      _writer in libBootProgress.a[7](BootLog.o)
+  "_native_ufs_log_read_bytes", referenced from:
+      _writer in libBootProgress.a[7](BootLog.o)
+      _writer in libBootProgress.a[7](BootLog.o)
+ld: symbol(s) not found for architecture arm64
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)
+make[3]: *** [/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837//mach.development.bcm2837.unstripped.noctf] Error 1
+make[2]: *** [build_all] Error 2
+make[1]: *** [build_all_bootstrap_DEVELOPMENT^ARM64^BCM2837] Error 2
+make: *** [build] Error 2
+build-xnu-4k-baseline.sh: line 851: make -C .cache/xnu-work "${XNU_BUILD_TARGET:-build}" SDKROOT="${XNU_SDKROOT:-iphoneos}" ARCH_CONFIGS=ARM64 MACHINE_CONFIGS=BCM2837 KERNEL_CONFIGS=DEVELOPMENT ARCH_STRING_FOR_CURRENT_MACHINE_CONFIG=arm64 LARGE_MEMORY_DEFINE=-UARM_LARGE_MEMORY ARM64_LINK_ADDR=0xfffffff007004000 ARM64_PLKSEG_ADDR=0xfffffff004004000 DEPLOYMENT_TARGET_FLAGS="-miphoneos-version-min=17.0 -DXNU_TARGET_OS_IOS" DEPLOYMENT_LINKER_FLAGS="-Wl,-ios_version_min,17.0" RC_DARWIN_KERNEL_VERSION="$XNU_DARWIN" RC_ProjectSourceVersion="$XNU_VERSION" BUILD_LTO=0 BOUND_CHECKS=0 BUILD_WERROR="${XNU_BUILD_WERROR:-0}" MAKEJOBS=-j"${JOBS:-4}" CFLAGS_EXTRA="$EXTRA_CFLAGS" "${EXTRA_MAKE_ARGS[@]}" ${XNU_HOST_MAKE_ARGS[@]+"${XNU_HOST_MAKE_ARGS[@]}"} OBJROOT="$ROOT/build/xnu/ios-obj" SYMROOT="$ROOT/build/xnu/ios-sym" DSTROOT="$ROOT/build/xnu/ios-dst" failed
 
 == UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/storage-headers.log
 PASS: 19 public IOStorageFamily headers prepared
@@ -692,9 +810,9 @@ verified   CRC32 $23A465D8
   "gib": 3,
   "container_bytes": 3221225472,
   "bytes": 3221225472,
-  "sha256": "653e187c173cfc52c520f796fd413f4b9acdc950737e411e3c4e91c804aced16",
+  "sha256": "496442f506bd46c0311b96a18070816e1602c686527f9fe011b3779f97945572",
   "encoded_bytes": 1028224,
-  "encoded_sha256": "8edc69a7e2349d39acd82b6cf3fdbe47dab0b89af04b2a87dff7c1d383761a17",
+  "encoded_sha256": "98cbc314579e1451c467035a81d0a5ac23e64c62e3154a85cbf9b0be83f24067",
   "packed": true
 }
 
@@ -710,8 +828,6 @@ verified   CRC32 $23A465D8
 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/ipsw/21H461/044-76034-038.dmg.trustcache
 
 == /Users/runner/work/_temp/kernel.log
-make[2]: *** [build_all] Error 2
-make[1]: *** [build_all_bootstrap_DEVELOPMENT^ARM64^BCM2837] Error 2
 make: *** [build] Error 2
 build-xnu-4k-baseline.sh: line 851: make -C .cache/xnu-work "${XNU_BUILD_TARGET:-build}" SDKROOT="${XNU_SDKROOT:-iphoneos}" ARCH_CONFIGS=ARM64 MACHINE_CONFIGS=BCM2837 KERNEL_CONFIGS=DEVELOPMENT ARCH_STRING_FOR_CURRENT_MACHINE_CONFIG=arm64 LARGE_MEMORY_DEFINE=-UARM_LARGE_MEMORY ARM64_LINK_ADDR=0xfffffff007004000 ARM64_PLKSEG_ADDR=0xfffffff004004000 DEPLOYMENT_TARGET_FLAGS="-miphoneos-version-min=17.0 -DXNU_TARGET_OS_IOS" DEPLOYMENT_LINKER_FLAGS="-Wl,-ios_version_min,17.0" RC_DARWIN_KERNEL_VERSION="$XNU_DARWIN" RC_ProjectSourceVersion="$XNU_VERSION" BUILD_LTO=0 BOUND_CHECKS=0 BUILD_WERROR="${XNU_BUILD_WERROR:-0}" MAKEJOBS=-j"${JOBS:-4}" CFLAGS_EXTRA="$EXTRA_CFLAGS" "${EXTRA_MAKE_ARGS[@]}" ${XNU_HOST_MAKE_ARGS[@]+"${XNU_HOST_MAKE_ARGS[@]}"} OBJROOT="$ROOT/build/xnu/ios-obj" SYMROOT="$ROOT/build/xnu/ios-sym" DSTROOT="$ROOT/build/xnu/ios-dst" failed
 == kernel: prepare storage headers
@@ -756,40 +872,42 @@ build-xnu-4k-baseline.sh: line 851: make -C .cache/xnu-work "${XNU_BUILD_TARGET:
 + python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-verified-root-probe.py --component os --include-systemos
 == kernel: archive-20-build-arm-driver
 + python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py NativeVirtioBlock --verified-root --verified-root-bundle
+== kernel: archive-21-build-storage-bindings
++ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-storage-bindings.py --component NativeVirtioBlock --archive libVirtioMmioBlock.a --directory build/virtio-mmio-block-verified-bundle --subset
 == kernel: component-QcomXnuUsbDebug
 + python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/drivers/QcomXnuUsbDebug/scripts/build.py --compile-record /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837/pexpert/DEVELOPMENT/pe_kprintf.o.json --soc soc/Sm8250.h --output /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/qcom-usb-debug --replace
 + bash /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-xnu-4k-baseline.sh
-      |                                 ~ ^~~~~
-2 warnings generated.
-PASS: strict source-kernel ARM64 boot diagnostic build
-build-xnu: QCOM_USB_DEBUG=1 (env=1)
-Traceback (most recent call last):
-  File "<stdin>", line 5, in <module>
-  File "/opt/homebrew/Cellar/python@3.15/3.15.0_1/Frameworks/Python.framework/Versions/3.15/lib/python3.15/pathlib/__init__.py", line 986, in read_text
-    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
-         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/homebrew/Cellar/python@3.15/3.15.0_1/Frameworks/Python.framework/Versions/3.15/lib/python3.15/pathlib/__init__.py", line 970, in open
-    return io.open(self, mode, buffering, encoding, errors, newline)
-           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/virtio-mmio-block-verified-bundle/bindings.json'
-build-xnu-4k-baseline.sh: line 803: python3 - "$VIRTIO_ARCHIVE" "$RAM_BLOCK_ARCHIVE"  <<'PY_BINDINGS'
-import json
-from pathlib import Path
-import sys
-import hashlib
-records = [json.loads(Path(p).with_name('bindings.json').read_text()) for p in sys.argv[1:]]
-for archive, record in zip(sys.argv[1:], records):
-    # The object name is the component's, not the archive's: libVirtioMmioBlock.a holds
-    # NativeVirtioBlock.o and libRamBlock.a holds NativeRamBlock.o. bindings.json records it.
-    obj = Path(archive).with_name(record['component'] + '.o')
-    if hashlib.sha256(obj.read_bytes()).hexdigest() != record['compiled_object_sha256']:
-        raise SystemExit('Re-audit the actual compiled storage object before linking')
-first, second = [record['bindings'] for record in records]
-if any(first.get(name) != value for name, value in second.items()):
-    raise SystemExit('RAM transport imports must match the already linked original storage bindings')
-PY_BINDINGS
- failed
-unixnu: bash failed (1); full log: /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/kernel.log
+  "_native_touch_frame_raw", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_frames", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_hid_reports", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_irq_level", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_irq_low", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_last_x", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_last_y", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_touch_valid", referenced from:
+      _monitor in libBootProgress.a[2](BootProgress.o)
+  "_native_ufs_log_read", referenced from:
+      _writer in libBootProgress.a[7](BootLog.o)
+      _writer in libBootProgress.a[7](BootLog.o)
+  "_native_ufs_log_read_bytes", referenced from:
+      _writer in libBootProgress.a[7](BootLog.o)
+      _writer in libBootProgress.a[7](BootLog.o)
+ld: symbol(s) not found for architecture arm64
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)
+make[3]: *** [/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837//mach.development.bcm2837.unstripped.noctf] Error 1
+make[2]: *** [build_all] Error 2
+make[1]: *** [build_all_bootstrap_DEVELOPMENT^ARM64^BCM2837] Error 2
+make: *** [build] Error 2
+build-xnu-4k-baseline.sh: line 851: make -C .cache/xnu-work "${XNU_BUILD_TARGET:-build}" SDKROOT="${XNU_SDKROOT:-iphoneos}" ARCH_CONFIGS=ARM64 MACHINE_CONFIGS=BCM2837 KERNEL_CONFIGS=DEVELOPMENT ARCH_STRING_FOR_CURRENT_MACHINE_CONFIG=arm64 LARGE_MEMORY_DEFINE=-UARM_LARGE_MEMORY ARM64_LINK_ADDR=0xfffffff007004000 ARM64_PLKSEG_ADDR=0xfffffff004004000 DEPLOYMENT_TARGET_FLAGS="-miphoneos-version-min=17.0 -DXNU_TARGET_OS_IOS" DEPLOYMENT_LINKER_FLAGS="-Wl,-ios_version_min,17.0" RC_DARWIN_KERNEL_VERSION="$XNU_DARWIN" RC_ProjectSourceVersion="$XNU_VERSION" BUILD_LTO=0 BOUND_CHECKS=0 BUILD_WERROR="${XNU_BUILD_WERROR:-0}" MAKEJOBS=-j"${JOBS:-4}" CFLAGS_EXTRA="$EXTRA_CFLAGS" "${EXTRA_MAKE_ARGS[@]}" ${XNU_HOST_MAKE_ARGS[@]+"${XNU_HOST_MAKE_ARGS[@]}"} OBJROOT="$ROOT/build/xnu/ios-obj" SYMROOT="$ROOT/build/xnu/ios-sym" DSTROOT="$ROOT/build/xnu/ios-dst" failed
+unixnu: bash failed (2); full log: /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/kernel.log
 
 == /Users/runner/work/_temp/policy-os.log
 {
@@ -802,7 +920,7 @@ unixnu: bash failed (1); full log: /Users/runner/work/unixnu-munch-build/unixnu-
   "source_format": "UDIF",
   "host_bus_protocol": "Disk Image",
   "host_media_writable": false,
-  "trusted_key_sha256": "80591e3015d2d642fd3c41a9f493f43be62b5f6bde6720b87de6ba0727c39c7e",
+  "trusted_key_sha256": "739203de0ba40dbe54b4d451c02674934bec10471551a9798b83e70cca02551d",
   "actual_sample_indices": [
     0,
     1,
@@ -836,7 +954,7 @@ unixnu: bash failed (1); full log: /Users/runner/work/unixnu-munch-build/unixnu-
   "source_format": "UDIF",
   "host_bus_protocol": "Disk Image",
   "host_media_writable": false,
-  "trusted_key_sha256": "80591e3015d2d642fd3c41a9f493f43be62b5f6bde6720b87de6ba0727c39c7e",
+  "trusted_key_sha256": "739203de0ba40dbe54b4d451c02674934bec10471551a9798b83e70cca02551d",
   "actual_sample_indices": [
     0,
     1,
@@ -863,9 +981,9 @@ unixnu: bash failed (1); full log: /Users/runner/work/unixnu-munch-build/unixnu-
 created: /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/build/owner-data-fixture/owner-data-32.cdr
 "disk33" ejected.
 {
-  "volume_uuid": "ABCDBD99-3C65-4153-B371-D394216990A6",
+  "volume_uuid": "B73DE7DB-21F3-4AC2-A1FB-D1A2670E19F2",
   "bytes": 33554432,
-  "sha256": "f96fba0b750a8b18a11fecca1d9a96f5545564f2ca1efeca71e1bd8a030ce08b",
+  "sha256": "89626296c87b8acecd7d3189b8a2a25f579906312c1b029f5aeb5f669c5dfc19",
   "source_regular_files": 39,
   "source_regular_bytes": 611715,
   "guest_mutable": true,
