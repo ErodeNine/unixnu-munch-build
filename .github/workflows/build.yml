@@ -197,14 +197,17 @@ jobs:
 
       - name: Build package
         working-directory: UniXNU
+        id: package
         run: ./unixnu build package
 
       - name: Build firmware
         working-directory: UniXNU
+        id: firmware
         run: ./unixnu build firmware --uefi "$GITHUB_WORKSPACE/uefi"
 
       - name: Build payload
         if: ${{ inputs.steps != 'kernel' }}
+        id: payload
         working-directory: UniXNU
         run: |
           CHIP_ID=$(tr -d '[:space:]' < "$GITHUB_WORKSPACE/config/unique-chip-id.txt")
@@ -215,6 +218,7 @@ jobs:
 
       - name: Build the boot image
         if: ${{ !cancelled() && (github.event_name == 'push' || inputs.steps == 'all' || inputs.steps == 'boot-image') }}
+        id: boot
         working-directory: UniXNU
         run: |
           ./unixnu bootimg \
@@ -257,8 +261,23 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
 
+      - name: Show the last log lines in the run summary
+        if: always()
+        run: |
+          {
+            echo "## munch build ${{ github.run_number }}"
+            echo
+            for log in $(find UniXNU/out -name '*.log' -size -2M 2>/dev/null | sort | tail -n 6); do
+              echo "### \`$log\`"
+              echo '```'
+              tail -n 60 "$log"
+              echo '```'
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Publish the release
         if: ${{ !cancelled() && (github.event_name == 'push' || (inputs.release && (inputs.steps == 'all' || inputs.steps == 'boot-image'))) }}
+        continue-on-error: true
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
@@ -278,3 +297,39 @@ jobs:
             ${{ github.workspace }}/artifacts/**/*.adt
             ${{ github.workspace }}/artifacts/**/*.json
           fail_on_unmatched_files: false
+
+      - name: Record the run log on the runs branch
+        if: always()
+        continue-on-error: true
+        env:
+          KERNEL: ${{ steps.kernel.outcome }}
+          PACKAGE: ${{ steps.package.outcome }}
+          FIRMWARE: ${{ steps.firmware.outcome }}
+          PAYLOAD: ${{ steps.payload.outcome }}
+          BOOT: ${{ steps.boot.outcome }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/record"
+          {
+            echo "run=$GITHUB_RUN_NUMBER attempt=$GITHUB_RUN_ATTEMPT ref=$GITHUB_REF"
+            echo "steps: kernel=$KERNEL package=$PACKAGE firmware=$FIRMWARE payload=$PAYLOAD boot=$BOOT"
+            echo
+            echo "== df"
+            df -h "$GITHUB_WORKSPACE" || true
+            echo
+            echo "== status.json"
+            head -c 4000 "$GITHUB_WORKSPACE/status.json" 2>/dev/null || true
+            echo
+            for f in $(find UniXNU/out -name '*.log' 2>/dev/null | sort | tail -n 8); do
+              echo
+              echo "== $f"
+              tail -n 120 "$f"
+            done
+          } > "$RUNNER_TEMP/record/summary.txt" 2>&1 || true
+          cd "$GITHUB_WORKSPACE"
+          git config user.name "munch-ci"
+          git config user.email "munch-ci@users.noreply.github.com"
+          git checkout -q -B runs
+          cp "$RUNNER_TEMP/record/summary.txt" run-summary.txt
+          git add run-summary.txt
+          git commit -qm "run $GITHUB_RUN_NUMBER ($KERNEL/$PACKAGE/$FIRMWARE/$PAYLOAD/$BOOT)" || true
+          git push -q -f origin runs
