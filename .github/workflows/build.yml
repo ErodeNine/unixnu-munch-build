@@ -118,15 +118,22 @@ jobs:
         working-directory: UniXNU
         run: ./unixnu defconfig "$DEFCONFIG" -D "$GITHUB_WORKSPACE/device"
 
-      - name: Restore the source and kernel build caches
+
+      - name: Restore the source cache
         uses: actions/cache/restore@v4
         with:
-          path: |
-            UniXNU/out/feeds
-            UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build
-          key: munch-build-${{ hashFiles('device/unixnu.lock', 'device/board.toml', 'device/configs/munch_defconfig') }}-${{ github.run_id }}
+          path: UniXNU/out/feeds
+          key: feeds-${{ hashFiles('device/unixnu.lock') }}-${{ github.run_id }}
           restore-keys: |
-            munch-build-${{ hashFiles('device/unixnu.lock', 'device/board.toml', 'device/configs/munch_defconfig') }}-
+            feeds-${{ hashFiles('device/unixnu.lock') }}-
+
+      - name: Restore the kernel build cache
+        uses: actions/cache/restore@v4
+        with:
+          path: UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build
+          key: kbuild-${{ hashFiles('device/unixnu.lock', 'device/board.toml', 'device/configs/munch_defconfig') }}-${{ github.run_id }}
+          restore-keys: |
+            kbuild-${{ hashFiles('device/unixnu.lock', 'device/board.toml', 'device/configs/munch_defconfig') }}-
 
       - name: Fetch sources
         working-directory: UniXNU
@@ -312,15 +319,21 @@ jobs:
           cp "$GITHUB_WORKSPACE/status.json" "$GITHUB_WORKSPACE/artifacts/" || true
           ls -lR "$GITHUB_WORKSPACE/artifacts" | head -100
 
-      - name: Save the source and kernel build caches
+      - name: Save the source cache
         if: always()
         continue-on-error: true
         uses: actions/cache/save@v4
         with:
-          path: |
-            UniXNU/out/feeds
-            UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build
-          key: munch-build-${{ hashFiles('device/unixnu.lock', 'device/board.toml', 'device/configs/munch_defconfig') }}-${{ github.run_id }}
+          path: UniXNU/out/feeds
+          key: feeds-${{ hashFiles('device/unixnu.lock') }}-${{ github.run_id }}
+
+      - name: Save the kernel build cache
+        if: always()
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build
+          key: kbuild-${{ hashFiles('device/unixnu.lock', 'device/board.toml', 'device/configs/munch_defconfig') }}-${{ github.run_id }}
 
       - name: Upload run artifacts
         if: always()
