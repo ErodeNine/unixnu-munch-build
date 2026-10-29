@@ -9,6 +9,7 @@ candidate exists yet, so the bootstrap copy drops them (and the display switch,
 whose stub LinkStubs.c provides) and leaves everything else identical.
 """
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -37,5 +38,13 @@ if 'CONFIG_XNU_NATIVE_LEGACY_DISPLAY=y' not in text:
 text = text.replace('CONFIG_XNU_NATIVE_LEGACY_DISPLAY=y',
                     '# CONFIG_XNU_NATIVE_LEGACY_DISPLAY is not set')
 defconfig.write_text(text)
+
+# unixnu tree runs "git submodule update" inside the device directory, so the copy
+# has to be a repository. It has no submodules: drivers/ and uefi/ are not copied.
+(dst / '.gitmodules').unlink(missing_ok=True)
+subprocess.run(['git', '-C', str(dst), 'init', '-q'], check=True)
+subprocess.run(['git', '-C', str(dst), 'add', '-A'], check=True)
+subprocess.run(['git', '-C', str(dst), '-c', 'user.name=bootstrap',
+                '-c', 'user.email=bootstrap@local', 'commit', '-qm', 'bootstrap'], check=True)
 
 print(f'bootstrap device: {dst}')
