@@ -27,6 +27,8 @@ OUT=out/munch/ipados-17.7.11-21H461/munch
 for d in libsa libkern osfmk bsd pexpert iokit security; do
   mkdir -p "$OUT/tree/build/xnu/ios-obj/EXPORT_HDRS/$d"
 done
+# The display audit writes its ABI record here and does not create the directory.
+mkdir -p "$OUT/tree/build/display-analysis"
 
 python3 "$REPO/scripts/prepare-bootstrap-device.py" "$DEVICE" "$BOOTSTRAP"
 ./unixnu defconfig munch_defconfig -D "$BOOTSTRAP"
@@ -45,8 +47,6 @@ cp "$OUT/kernel/kernel.json"  "$OUT/tree/build/xnu-prelink/native-owner-ufs-cpu-
 
 python3 - <<'PY'
 from pathlib import Path
-# The audit writes its ABI record here and does not create the directory.
-Path('build/display-analysis').mkdir(parents=True, exist_ok=True)
 audit = Path('scripts/audit-mobile-graphics-legacy.py')
 text = audit.read_text()
 old = ("    require(out.exists() and json.loads(out.read_text())['runtime_metadata_checkpoint_sha256']==RUNTIME_SHA,\n"
