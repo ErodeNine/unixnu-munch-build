@@ -134,7 +134,7 @@ fastboot boot path/to/boot.img
 
 ### A2 按键操作
 
-- 音量加/减移动，电源键确认（`ButtonsDxe` 已把电源键映射为 ENTER）。
+- 音量加/减移动，电源键确认（菜单同时接受 ENTER 与 SCAN_SUSPEND，参考版与板级 `ButtonsDxe` 都能确认）。
 - 若按键无效：插 **USB 键盘**，用方向键+回车操作（固件包含 UsbKbDxe）。
 
 ### A3 抓日志（关键）

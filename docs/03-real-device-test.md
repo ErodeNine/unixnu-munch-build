@@ -131,7 +131,7 @@ fastboot boot path/to/boot.img
 
 ### A2 controls
 
-- Volume up/down moves, power confirms (`ButtonsDxe` maps power to ENTER).
+- Volume up/down moves, power confirms (the menu accepts ENTER and SCAN_SUSPEND, so both reference and board `ButtonsDxe` work).
 - If the buttons do nothing, plug in a **USB keyboard** and use arrows + Enter (UsbKbDxe is in the firmware).
 
 ### A3 capture logs
