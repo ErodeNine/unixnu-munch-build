@@ -173,6 +173,9 @@ PY
 mkdir -p "$OUT/tree/build/xnu-prelink"
 cp "$OUT/kernel/kernel.macho" "$OUT/tree/build/xnu-prelink/native-owner-mobile-graphics-candidate.macho"
 cp "$OUT/kernel/kernel.json" "$OUT/tree/build/xnu-prelink/native-owner-mobile-graphics-candidate.json"
+# The HID recipe looks for the ufs-cpu-desktop candidate name instead.
+cp "$OUT/kernel/kernel.macho" "$OUT/tree/build/xnu-prelink/native-owner-ufs-cpu-desktop-munch-candidate.macho"
+cp "$OUT/kernel/kernel.json" "$OUT/tree/build/xnu-prelink/native-owner-ufs-cpu-desktop-munch-candidate.json"
 UNIXNU_DISPLAY_ABI_UNQUALIFIED=1 ./unixnu build kernel
 
 say 'build package'

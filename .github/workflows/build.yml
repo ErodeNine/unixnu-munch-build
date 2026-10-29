@@ -307,6 +307,9 @@ jobs:
           mkdir -p "$OUT/tree/build/xnu-prelink"
           cp "$OUT/kernel/kernel.macho" "$OUT/tree/build/xnu-prelink/native-owner-mobile-graphics-candidate.macho"
           cp "$OUT/kernel/kernel.json" "$OUT/tree/build/xnu-prelink/native-owner-mobile-graphics-candidate.json"
+          # The HID recipe looks for the ufs-cpu-desktop candidate name instead.
+          cp "$OUT/kernel/kernel.macho" "$OUT/tree/build/xnu-prelink/native-owner-ufs-cpu-desktop-munch-candidate.macho"
+          cp "$OUT/kernel/kernel.json" "$OUT/tree/build/xnu-prelink/native-owner-ufs-cpu-desktop-munch-candidate.json"
           # Pass 2 now sees the prelinked kernel, links the real ApplePMGR bridge that
           # AMFI requires, and builds the display and touch archives against the candidate.
           UNIXNU_DISPLAY_ABI_UNQUALIFIED=1 ./unixnu build kernel 2>&1 | tee -a "$RUNNER_TEMP/kernel.log"
