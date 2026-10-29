@@ -279,7 +279,7 @@ jobs:
           # the device repository, and build-adreno650.py takes them from these paths.
           ADRENO650_DRIVER: ${{ github.workspace }}/device/drivers/Adreno650
           ADRENO650_KITS: ${{ github.workspace }}/device/kits
-          ADRENO650_PACKAGE: ${{ github.workspace }}/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/package
+          ADRENO650_PACKAGE: ${{ github.workspace }}/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/munch
         run: |
           set -o pipefail
           bash "$GITHUB_WORKSPACE/scripts/steps/build-kernel.sh" "$GITHUB_WORKSPACE/UniXNU" "$GITHUB_WORKSPACE/device" "$GITHUB_WORKSPACE" "$RUNNER_TEMP/device-bootstrap" 2>&1 | tee "$RUNNER_TEMP/kernel.log"

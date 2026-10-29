@@ -170,7 +170,9 @@ export UNIXNU_UEFI="$WORK/uefi"
 # from these paths. The bootstrap pass needs them too: its device copy drops drivers/.
 export ADRENO650_DRIVER="$WORK/device/drivers/Adreno650"
 export ADRENO650_KITS="$WORK/device/kits"
-export ADRENO650_PACKAGE="$OUT/tree/package"
+# This repository's own package is linked into the tree as kits/<kit>; tree/package is
+# UniXNU's shared package and has no board sources.
+export ADRENO650_PACKAGE="$OUT/tree/kits/munch"
 for f in "$ADRENO650_DRIVER/AGENTS.md" "$ADRENO650_KITS/ArmSmmu4K/ArmSmmu4K.c"; do
   [ -e "$f" ] || { echo "missing $f; run: git -C $WORK/device submodule update --init --recursive" >&2; exit 1; }
 done
