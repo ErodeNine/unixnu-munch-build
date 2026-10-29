@@ -162,6 +162,15 @@ PY
 
 say 'build kernel'
 export UNIXNU_UEFI="$WORK/uefi"
+# Adreno650 is not a UniXNU component, so its driver is a submodule of the device
+# repository and scripts/build-adreno650.py takes the sources, the kits and the package
+# from these paths. The bootstrap pass needs them too: its device copy drops drivers/.
+export ADRENO650_DRIVER="$WORK/device/drivers/Adreno650"
+export ADRENO650_KITS="$WORK/device/kits"
+export ADRENO650_PACKAGE="$OUT/tree/package"
+for f in "$ADRENO650_DRIVER/AGENTS.md" "$ADRENO650_KITS/ArmSmmu4K/ArmSmmu4K.c"; do
+  [ -e "$f" ] || { echo "missing $f; run: git -C $WORK/device submodule update --init --recursive" >&2; exit 1; }
+done
 bash "$HERE/scripts/steps/build-kernel.sh" "$WORK/UniXNU" "$WORK/device" "$HERE" "$WORK/device-bootstrap"
 
 say 'build package'
