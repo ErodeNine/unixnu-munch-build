@@ -117,7 +117,8 @@ for d in libsa libkern osfmk bsd pexpert iokit security; do
 done
 export UNIXNU_UEFI=$WORK/uefi
 
-./unixnu build kernel
+./unixnu build kernel   # pass 1: links the no-op sheng_pmgr_run
+./unixnu build kernel   # pass 2: now links the real ApplePMGR bridge
 ./unixnu build package
 ./unixnu build firmware --uefi "$WORK/uefi"
 ./unixnu build payload --unique-chip-id "$(cat ../unixnu-munch-build/config/unique-chip-id.txt)" \

@@ -134,6 +134,10 @@ for d in libsa libkern osfmk bsd pexpert iokit security; do
   mkdir -p "$OUT/tree/build/xnu/ios-obj/EXPORT_HDRS/$d"
 done
 export UNIXNU_UEFI="$WORK/uefi"
+# Pass 1 links a no-op sheng_pmgr_run: build-platform-power.py needs the previous
+# prelinked kernel as its reference. Pass 2 links the real ApplePMGR bridge that
+# AMFI's ConfigurationSettings requires.
+./unixnu build kernel
 ./unixnu build kernel
 
 say 'build package'

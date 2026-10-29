@@ -281,7 +281,12 @@ jobs:
           for d in libsa libkern osfmk bsd pexpert iokit security; do
             mkdir -p "out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/$d"
           done
+          # Pass 1 links a no-op sheng_pmgr_run: build-platform-power.py needs the
+          # previous prelinked kernel as its reference and a fresh workspace has none.
           ./unixnu build kernel 2>&1 | tee "$RUNNER_TEMP/kernel.log"
+          # Pass 2 now sees out/<device>/<os>/<config>/kernel/kernel.macho and links the
+          # real ApplePMGR bridge, which AMFI's ConfigurationSettings requires.
+          ./unixnu build kernel 2>&1 | tee -a "$RUNNER_TEMP/kernel.log"
 
       - name: Build package
         working-directory: UniXNU
