@@ -64,3 +64,18 @@ Linux 可完成 kernel（需先跑 `scripts/linux/setup-toolchain.py`）、packa
 - 产物包含 Apple IPSW 派生数据，仓库应保持 private。
 - 不要分发 `userdata-root.img`、`kernel.macho`、`payload.img`。
 - 本项目不绕过 Apple 的激活/签名服务；仅用于自有机型的系统移植研究。
+
+## GUI 边界（2026-10-29 实测）
+
+带显示与触控 archive 的镜像在实机上到达用户态：
+
+- `/private/var`、`launchd`、`keybagd`、`usermanagerd`、`datamigrator` 均退出码 0；
+- 显示后端报告 `DISPLAY stage=10 PM=4 calls=4 callbacks=1`，面板出现诊断彩条，
+  说明 `IOMobileFramebufferLegacy` 已注册且有客户端；
+- `SpringBoard` 被反复拉起，并在同一 PC 以 `sig5 ns=2 code=5` 崩溃，即 FrontBoard 的
+  断言 `failed to find the main CADisplay`；
+- 串口里完全没有 `backboardd`，也没有 `IOGPU`/`Metal`/`AGX` 活动。
+
+SpringBoard 通过 CoreDisplay 索取主 CADisplay；该显示器由 backboardd 在帧缓冲之上发布，
+而 iOS 17 的渲染服务器依赖 Metal 设备。没有 Adreno 650 加速器提供者就没有 Metal 设备，
+GUI 层停在这里。这就是 `docs/01-feasibility.md` 里的 P5（GPU/Metal）项。

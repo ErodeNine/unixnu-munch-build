@@ -64,3 +64,21 @@ Linux can run kernel (after `scripts/linux/setup-toolchain.py`), package, firmwa
 - The outputs contain Apple IPSW-derived material; keep the repository private.
 - Do not redistribute `userdata-root.img`, `kernel.macho` or `payload.img`.
 - This project does not bypass Apple's activation or signing services; it is system-porting research for hardware you own.
+
+## GUI boundary (measured 2026-10-29)
+
+The image with the display and touch archives reaches userspace on hardware:
+
+- `/private/var`, `launchd`, `keybagd`, `usermanagerd`, `datamigrator` all exit 0;
+- the display backend reports `DISPLAY stage=10 PM=4 calls=4 callbacks=1` and the panel
+  shows the diagnostic colour bands, so `IOMobileFramebufferLegacy` is registered and
+  has a client;
+- `SpringBoard` is respawned and dies at one PC with `sig5 ns=2 code=5`, the FrontBoard
+  assertion `failed to find the main CADisplay`;
+- `backboardd` never appears in the console at all, and the log has no `IOGPU`, `Metal`
+  or `AGX` activity.
+
+SpringBoard asks CoreDisplay for the main CADisplay; that display is published by
+backboardd on top of the framebuffer, and backboardd's render server in iOS 17 expects a
+Metal device. Without an Adreno 650 accelerator provider there is no Metal device, so the
+GUI layer stops here. This is the P5 (GPU/Metal) item from `docs/01-feasibility.md`.
