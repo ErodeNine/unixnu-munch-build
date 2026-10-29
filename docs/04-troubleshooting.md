@@ -73,12 +73,13 @@ The image with the display and touch archives reaches userspace on hardware:
 - the display backend reports `DISPLAY stage=10 PM=4 calls=4 callbacks=1` and the panel
   shows the diagnostic colour bands, so `IOMobileFramebufferLegacy` is registered and
   has a client;
-- `SpringBoard` is respawned and dies at one PC with `sig5 ns=2 code=5`, the FrontBoard
-  assertion `failed to find the main CADisplay`;
-- `backboardd` never appears in the console at all, and the log has no `IOGPU`, `Metal`
-  or `AGX` activity.
+- an earlier boot respawned `SpringBoard` into the FrontBoard assertion
+  `failed to find the main CADisplay` (`sig5 ns=2 code=5`);
+- with the Data seed in place the GUI comes up: Setup Assistant renders its language
+  picker, so backboardd, WindowServer and the render server are running.
 
-SpringBoard asks CoreDisplay for the main CADisplay; that display is published by
-backboardd on top of the framebuffer, and backboardd's render server in iOS 17 expects a
-Metal device. Without an Adreno 650 accelerator provider there is no Metal device, so the
-GUI layer stops here. This is the P5 (GPU/Metal) item from `docs/01-feasibility.md`.
+Remaining issues at this point are the panel identity/scale (the status bar is not drawn:
+1080x2400 against the iPhone10,3 1125x2436@3x identity) and touch input
+(`contacts=0`, `hid=0`, `hres=1`). Pass `--skip-setup` to the payload step to boot past
+Setup Assistant once the identity is settled.
+

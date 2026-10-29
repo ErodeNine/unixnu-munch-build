@@ -156,7 +156,8 @@ say 'build payload'
 ./unixnu build payload \
   --unique-chip-id "$CHIP_ID" \
   --trust-cache build/original-static-system-trust/original-static-system.bundle \
-  --data-ramdisk build/owner-data-fixture/owner-data-3.dbr
+  --data-ramdisk build/owner-data-fixture/owner-data-3.dbr \
+  --skip-setup
 
 say 'build boot image'
 ./unixnu bootimg --uefi "$WORK/uefi" --dtb "$WORK/uefi/Resources/DTBs/munch.dtb"

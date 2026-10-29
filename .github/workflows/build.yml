@@ -310,6 +310,7 @@ jobs:
             --unique-chip-id "$CHIP_ID" \
             --trust-cache build/original-static-system-trust/original-static-system.bundle \
             --data-ramdisk build/owner-data-fixture/owner-data-3.dbr \
+            --skip-setup \
             2>&1 | tee "$RUNNER_TEMP/payload.log"
 
       - name: Build the boot image
