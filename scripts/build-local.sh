@@ -161,9 +161,10 @@ new = ("    import os\n"
        "    require(os.environ.get('UNIXNU_DISPLAY_ABI_UNQUALIFIED') == '1' or\n"
        "            (out.exists() and json.loads(out.read_text())['runtime_metadata_checkpoint_sha256']==RUNTIME_SHA),\n"
        "            'Recorded runtime observation hash')")
-if old not in text:
-    raise SystemExit('audit-mobile-graphics-legacy.py changed; update the patch')
-audit.write_text(text.replace(old, new))
+if 'UNIXNU_DISPLAY_ABI_UNQUALIFIED' not in text:
+    if old not in text:
+        raise SystemExit('audit-mobile-graphics-legacy.py changed; update the patch')
+    audit.write_text(text.replace(old, new))
 PY
 # Pass 1 links a no-op sheng_pmgr_run: build-platform-power.py needs the previous
 # prelinked kernel as its reference. Pass 2 links the real ApplePMGR bridge that
