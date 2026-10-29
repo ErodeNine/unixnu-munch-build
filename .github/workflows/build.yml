@@ -49,7 +49,14 @@ env:
   # produced without the manual dispatch form.
   WANT_USERDATA: ${{ (inputs.userdata || contains(github.ref_name, '-ud')) && 'true' || 'false' }}
   UNIXNU_REPO: FFT-infra/UniXNU
-  UNIXNU_REF: main
+  # Pinned: this commit's drivers/GopFramebuffer gitlink is 33e941a8, the
+  # revision the display recipe in the device repository is written against.
+  # main moved to b06fd743 on 2026-10-29 09:49 and that revision needs a
+  # dozen ABI inputs (OriginalLegacyStateRequest, kRequestSurfaces,
+  # kLegacyVsyncClients, NATIVE_LEGACY_LEAVES, installDefaultSurface, ...)
+  # that the recipe does not supply yet, so the display archive fails to
+  # compile with 73 errors. Re-pin to main once the recipe carries them.
+  UNIXNU_REF: e42b818c568f76402a5a97849fa4ed15c18b3e63
   UEFI_REPO: FFT-infra/uefi-alioth
   UEFI_REF: main
   DEVICE_NAME: munch
