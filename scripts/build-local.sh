@@ -98,6 +98,9 @@ print('bundle sha256', hashlib.sha256(bundle).hexdigest())
 PY
 
 say 'prepare the Data seed and the owner root policies'
+# The fixture, the packed seed and the grown seed all refuse to overwrite, so a
+# rerun after an interrupted build starts from a clean directory.
+rm -rf build/owner-data-fixture
 mkdir -p "$VOL/os-mount"
 hdiutil detach "$VOL/os-mount" -force >/dev/null 2>&1 || true
 hdiutil attach -readonly -nobrowse -owners off -mountpoint "$VOL/os-mount" \
