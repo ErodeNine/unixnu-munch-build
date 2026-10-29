@@ -43,7 +43,7 @@ permissions:
   contents: write
 
 env:
-  DEVICE_REPO: WuBarlynn/unixnu-munch
+  DEVICE_REPO: ErodeNine/unixnu-munch
   DEVICE_REF: main
   # A tag ending in -ud builds the userdata image as well, so the whole set can be
   # produced without the manual dispatch form.
