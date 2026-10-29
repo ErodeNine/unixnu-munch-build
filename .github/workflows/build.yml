@@ -47,7 +47,7 @@ env:
   DEVICE_REF: main
   # A tag ending in -ud builds the userdata image as well, so the whole set can be
   # produced without the manual dispatch form.
-  WANT_USERDATA: ${{ inputs.userdata || contains(github.ref_name, '-ud') }}
+  WANT_USERDATA: ${{ (inputs.userdata || contains(github.ref_name, '-ud')) && 'true' || 'false' }}
   UNIXNU_REPO: FFT-infra/UniXNU
   UNIXNU_REF: main
   UEFI_REPO: FFT-infra/uefi-alioth
@@ -328,7 +328,7 @@ jobs:
             2>&1 | tee "$RUNNER_TEMP/bootimg.log"
 
       - name: Build userdata
-        if: ${{ env.WANT_USERDATA }}
+        if: ${{ env.WANT_USERDATA == 'true' }}
         working-directory: UniXNU
         run: |
           df -h "$GITHUB_WORKSPACE"
@@ -340,13 +340,16 @@ jobs:
         run: |
           mkdir -p "$GITHUB_WORKSPACE/artifacts"
           if [ -d out ]; then
+            extra=()
+            if [ "$WANT_USERDATA" = "true" ]; then
+              extra=(-o -name 'userdata-root.img' -o -name 'userdata-root.json')
+            fi
             files=$(find out -maxdepth 6 -type f \( \
                 -name 'boot.img' -o -name 'boot.json' \
                 -o -name 'payload.img' -o -name 'payload.json' \
                 -o -name 'kernel.macho' -o -name 'kernel.macho.adt' \
                 -o -name 'SILICIUM_UEFI.fd' \
-                -o -name 'userdata-root.img' -o -name 'userdata-root.json' \
-                -o -name '*.log' \) || true)
+                -o -name '*.log' "${extra[@]}" \) || true)
             if [ -n "$files" ]; then
               rsync -R $files "$GITHUB_WORKSPACE/artifacts/"
             fi
