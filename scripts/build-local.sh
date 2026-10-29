@@ -42,6 +42,9 @@ say "work directory: $WORK"
 clone() {
   local dir=$1 url=$2
   if [ -d "$dir/.git" ]; then
+    # The script pins the generated Data-seed UUID into the tracked defconfig on
+    # every run, so a pull would refuse to start; the value is regenerated below.
+    git -C "$dir" checkout -- configs/munch_defconfig 2>/dev/null || true
     git -C "$dir" pull --ff-only
   else
     git clone --recurse-submodules "$url" "$dir"
