@@ -17,7 +17,7 @@
 set -euo pipefail
 
 WORK=${1:-$HOME/munch-build}
-HERE=$(cd "$(dirname "$0")" && pwd)
+HERE=$(cd "$(dirname "$0")/.." && pwd)
 CHIP_ID=$(tr -d '[:space:]' < "$HERE/config/unique-chip-id.txt")
 DEVICE_NAME=munch
 DEFCONFIG=munch_defconfig
