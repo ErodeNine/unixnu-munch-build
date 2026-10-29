@@ -13,6 +13,7 @@
 | Xcode | 15 及以上（CI 用 26.x）；先执行一次 `sudo xcode-select -s /Applications/Xcode.app` |
 | Python | 3.11 及以上（`python3 --version`） |
 | Homebrew | `brew install llvm lld mtools dtc unifdef cmake ninja` |
+| GitHub token | 先 `gh auth login`，或导出 `GITHUB_TOKEN`；内核步骤通过 API 列 Apple 源码，匿名调用会触发 HTTP 403 限流 |
 | 磁盘 | 约 30 GB 空闲：IPSW 成员 8.5 GB、构建树与内核约 8 GB、启动镜像 0.2 GB |
 | 时间 | 首次 40–90 分钟；保留 `out/` 的增量重建 10–20 分钟 |
 

@@ -14,6 +14,7 @@ own Mac. The pipeline stays as a fallback.
 | Xcode | 15 or newer (26.x is what CI uses); run `sudo xcode-select -s /Applications/Xcode.app` once |
 | Python | 3.11 or newer (`python3 --version`) |
 | Homebrew | `brew install llvm lld mtools dtc unifdef cmake ninja` |
+| GitHub token | `gh auth login` once, or export `GITHUB_TOKEN`; the kernel step lists Apple sources through the API and anonymous calls hit HTTP 403 rate limits |
 | Disk | about 30 GB free: IPSW members 8.5 GB, build tree and kernel ~8 GB, boot image 0.2 GB |
 | Time | 40–90 minutes the first time, 10–20 minutes for a rebuild with an existing `out/` |
 

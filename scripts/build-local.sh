@@ -59,9 +59,16 @@ say 'apply the munch UEFI platform'
 
 cd "$WORK/UniXNU"
 
+# prepare-xnu-source.py lists Apple sources through the GitHub API and needs a
+# token; anonymous calls hit the shared rate limit (HTTP 403).
+if [ -z "${GITHUB_TOKEN:-}" ] && command -v gh >/dev/null; then
+  GITHUB_TOKEN=$(gh auth token 2>/dev/null || true)
+fi
+export GITHUB_TOKEN
+
 say 'resolve the configuration'
 ./unixnu defconfig "$DEFCONFIG" -D "$WORK/device"
-GITHUB_TOKEN=${GITHUB_TOKEN:-} ./unixnu fetch
+./unixnu fetch
 ./unixnu status --json | tee "$WORK/status.json"
 ./unixnu tree
 
