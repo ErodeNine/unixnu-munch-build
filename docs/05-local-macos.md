@@ -147,6 +147,32 @@ All under `out/munch/ipados-17.7.11-21H461/munch/`:
 - Full clean: `cd ~/munch-build/UniXNU && ./unixnu clean` (keeps fetched sources), or delete `out/` for a from-scratch build.
 - Firmware volume only: run the script up to `build firmware`, then `./unixnu bootimg --uefi ... --dtb ...` again (the payload is picked from `out/.../payload/payload.img`).
 
+### Boot-argument-only changes
+
+`board.toml` `kernel_args` are copied into the payload, not compiled into the
+kernel, so a change to them does not need a kernel build. Rebuild the payload
+and the boot image only:
+
+```bash
+cd ~/unixnu-munch-build
+git pull
+./scripts/rebuild-payload.sh ~/munch-build
+fastboot boot ~/munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/boot/boot.img
+```
+
+The script pulls `~/munch-build/device` for the newest arguments, then reuses
+the kernel and firmware from the last full build; it finishes in about a minute.
+Add `--kernel-arg NAME=VALUE` to override one argument for a single image
+without committing it, for example:
+
+```bash
+./scripts/rebuild-payload.sh ~/munch-build \
+  --kernel-arg offline-legacy-unit-scale=0 --kernel-arg native-touch-diag=0
+```
+
+A `defconfig` change is not covered: it changes the kernel configuration, so it
+needs the full `build-local.sh` run.
+
 ## 6. Troubleshooting
 
 | Symptom | Cause | Fix |

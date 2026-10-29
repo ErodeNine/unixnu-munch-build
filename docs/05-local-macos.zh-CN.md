@@ -144,6 +144,30 @@ export UNIXNU_UEFI=$WORK/uefi
 - 彻底清理：`cd ~/munch-build/UniXNU && ./unixnu clean`（保留已拉取源码）；删除 `out/` 则从头构建。
 - 只重建固件：跑到 `build firmware` 后，再执行一次 `./unixnu bootimg --uefi ... --dtb ...`（payload 会自动取 `out/.../payload/payload.img`）。
 
+### 只改启动参数时
+
+`board.toml` 的 `kernel_args` 是打包进 payload 的，不参与内核编译，所以只改参数
+不需要重编内核。只重建 payload 和 boot 镜像：
+
+```bash
+cd ~/unixnu-munch-build
+git pull
+./scripts/rebuild-payload.sh ~/munch-build
+fastboot boot ~/munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/boot/boot.img
+```
+
+脚本会先 `git pull` `~/munch-build/device` 拿到最新参数，然后复用上次完整构建的
+内核和固件，大约一分钟完成。加 `--kernel-arg NAME=VALUE` 可以只对这一次镜像覆盖
+单个参数、不用提交，例如：
+
+```bash
+./scripts/rebuild-payload.sh ~/munch-build \
+  --kernel-arg offline-legacy-unit-scale=0 --kernel-arg native-touch-diag=0
+```
+
+改 `munch_defconfig` 不属于这种情况：它改的是内核配置，必须跑完整的
+`build-local.sh`。
+
 ## 6. 常见问题
 
 | 现象 | 原因 | 处理 |
