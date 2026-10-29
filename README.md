@@ -116,5 +116,6 @@ cd UniXNU
 | [docs/02-porting-plan.md](docs/02-porting-plan.md) | The eight official porting steps and how this port fills them |
 | [docs/03-real-device-test.md](docs/03-real-device-test.md) | Step-by-step hardware test: unlock, backup, flash, logs, rollback |
 | [docs/04-troubleshooting.md](docs/04-troubleshooting.md) | Known limits and failure branches |
+| [docs/05-local-macos.md](docs/05-local-macos.md) | Build every image on a local Mac (`scripts/build-local.sh`) |
 
 Every document has a Simplified Chinese version at `<name>.zh-CN.md`.

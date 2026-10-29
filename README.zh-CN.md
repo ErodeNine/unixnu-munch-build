@@ -115,3 +115,4 @@ cd UniXNU
 | [docs/02-porting-plan.md](docs/02-porting-plan.zh-CN.md) | 八步移植方案与本次实现映射 |
 | [docs/03-real-device-test.md](docs/03-real-device-test.zh-CN.md) | 实机分步测试手册（解锁、备份、刷写、日志、回滚） |
 | [docs/04-troubleshooting.md](docs/04-troubleshooting.zh-CN.md) | 故障排查与已知限制 |
+| [docs/05-local-macos.md](docs/05-local-macos.zh-CN.md) | 在本地 Mac 上构建全部镜像（`scripts/build-local.sh`） |
