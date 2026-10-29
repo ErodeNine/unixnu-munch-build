@@ -1,9 +1,9 @@
-run=3 attempt=1 ref=refs/heads/main
+run=4 attempt=1 ref=refs/heads/main
 steps: kernel= package=skipped firmware=skipped payload=skipped boot=skipped
 
 == df
 Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on
-/dev/disk2s5   320Gi   213Gi    86Gi    72%    2.1M  906M    0%   /System/Volumes/Data
+/dev/disk2s5   320Gi   213Gi    87Gi    71%    2.1M  914M    0%   /System/Volumes/Data
 
 == status.json
 {
@@ -277,9 +277,54 @@ Built /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/
 Added 5 objects to /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/link-stubs/libLinkStubs.a
 
 == UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-25-build-gop-legacy-display.log
+      uint32_t width=0,height=0;getDisplayDimensions(&width,&height);
+      |                                       ^~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/drivers/GopFramebuffer/NativeLegacyDisplay.cpp:764:23: error: no matching function for call to 'native_legacy_gop_mapping_observed'
+  764 |                 valid=native_legacy_gop_mapping_observed(this,bootMapping,width,height);
+      |                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/drivers/GopFramebuffer/NativeLegacyDisplay.cpp:22:17: note: candidate function not viable: no known conversion from 'NativeLegacyDisplay *' to 'IOService *' for 1st argument
+   22 | extern "C" bool native_legacy_gop_mapping_observed(IOService *,IOMemoryMap *,uint32_t,uint32_t);
+      |                 ^                                  ~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/drivers/GopFramebuffer/NativeLegacyDisplay.cpp:777:1: error: cannot initialize return object of type 'OSObject *' with an rvalue of type 'NativeLegacyDisplay *'
+  777 | OSDefineMetaClassAndStructors(NativeLegacyDisplay,IOMobileFramebufferLegacy)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/libkern/libkern/c++/OSMetaClass.h:2330:2: note: expanded from macro 'OSDefineMetaClassAndStructors'
+ 2330 |         OSDefineMetaClassAndStructorsWithInit(className,            \
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2331 |                         superclassName, )
+      |                         ~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/libkern/libkern/c++/OSMetaClass.h:2164:2: note: expanded from macro 'OSDefineMetaClassAndStructorsWithInit'
+ 2164 |         OSDefineDefaultStructors(className, superclassName)
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/libkern/libkern/c++/OSMetaClass.h:2119:2: note: expanded from macro 'OSDefineDefaultStructors'
+ 2119 |         OSDefineBasicStructors(className, superclassName)           \
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/libkern/libkern/c++/OSMetaClass.h:2073:11: note: expanded from macro 'OSDefineBasicStructors'
+ 2073 |         { return new className; }                                   \
+      |                  ^~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/drivers/GopFramebuffer/NativeLegacyDisplay.cpp:778:57: error: cannot initialize return object of type 'IOService *' with an rvalue of type 'NativeLegacyDisplay *'
+  778 | IOService *native_legacy_display_allocate(void) {return new NativeLegacyDisplay;}
+      |                                                         ^~~~~~~~~~~~~~~~~~~~~~~
+73 errors generated.
+
 PASS: original Legacy has 358 slots with nine abstract leaves; original generic client/start/dispatch entries identified
 Service adds no operational overrides; Legacy initialization/start/backend contracts still require implementation and runtime qualification
-display patch anchor is not unique:         if(directOn && !gpuBypass && !latchRequest) {
+Traceback (most recent call last):
+  File "/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-gop-legacy-display.py", line 295, in <module>
+    print(run(['python3', ROOT / 'scripts/build-arm-driver.py', 'NativeLegacyDisplay'], text=True), end='')
+          ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-gop-legacy-display.py", line 36, in run
+    return subprocess.check_output([str(x) for x in cmd], timeout=90, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0_1/Frameworks/Python.framework/Versions/3.15/lib/python3.15/subprocess.py", line 587, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               **kwargs).stdout
+               ^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0_1/Frameworks/Python.framework/Versions/3.15/lib/python3.15/subprocess.py", line 692, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['python3', '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py', 'NativeLegacyDisplay']' returned non-zero exit status 1.
 
 == UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/component-AppleKeyStoreState.log
 AppleKeyStoreState: -Werror build and actual ARM64/iOS 17 object audit passed
@@ -310,7 +355,6 @@ SoftwareAES: -Werror build and actual ARM64/iOS 17 object audit passed
 VirtioMmioBlock: -Werror build and actual ARM64/iOS 17 object audit passed
 
 == UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/kernel-bootstrap.log
-init_sysent.c:3318:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 'int (*)(struct proc *, void *, int *)') converts to incompatible function type [-Wcast-function-type-strict]
  3318 |         { (sy_call_t *)(void (*)(void))necp_session_action, munge_wwwwww, _SYSCALL_RET_INT_T, AC(necp_session_action_args), 24}, /* 523 = necp_session_action */
       |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 init_sysent.c:3335:17: warning: cast from 'int (*)(struct proc *, struct setattrlistat_args *, int *)' to 'void (*)(void)' converts to incompatible function type [-Wcast-function-type-strict]
@@ -506,6 +550,7 @@ init_sysent.c:3506:4: warning: cast from 'void (*)(void)' to 'sy_call_t *' (aka 
  3506 |         { (sy_call_t *)(void (*)(void))ungraftdmg, munge_wl, _SYSCALL_RET_INT_T, AC(ungraftdmg_args), 12},    /* 555 = ungraftdmg */
       |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1113 warnings generated.
+135 warnings generated.
 1 warning generated.
      LDFILELIST bsd
              CC lastkerneldataconst.o
@@ -708,7 +753,6 @@ build-xnu-4k-baseline.sh: line 851: make -C .cache/xnu-work "${XNU_BUILD_TARGET:
 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/kern/startup.h:748:6: note: expanded from macro '__STARTUP_FUNC_CAST'
   748 |             (typeof(func(a))(*)(const void *))func
       |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-38 warnings generated.
 In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/dev/arm/unix_signal.c:10:
 In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/user.h:83:
 In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/sys/vm.h:136:
@@ -719,6 +763,7 @@ In file included from /Users/runner/work/unixnu-munch-build/unixnu-munch-build/U
 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/osfmk/vm/vm_kern.h:793:27: note: expanded from macro 'KMEM_REALLOC_FLAGS_VALID'
   793 |         (((flags) & (KMR_KOBJECT | KMEM_GUARD_LAST | KMEM_KASAN_GUARD | KMR_DATA)) == KMR_DATA || ((flags) & KMR_FREEOLD))
       |                      ~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~~
+38 warnings generated.
 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/xnu-work/bsd/dev/arm/unix_signal.c:105:8: warning: cast from 'void (*)(const struct startup_tunable_spec *)' to 'typeof (kernel_startup_tunable_init(&__startup_TUNABLES_spec_pac_sigreturn_token)) (*)(const void *)' (aka 'void (*)(const void *)') converts to incompatible function type [-Wcast-function-type-strict]
   105 | static TUNABLE(bool, pac_sigreturn_token, "pac_sigreturn_token", true);
       |        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -837,10 +882,10 @@ Checksumming Backup GPT Table…
 Checksumming Backup GPT Header…
                    Backup GPT Header: verified   CRC32 $70D5FE69
 verified   CRC32 $23A465D8
-/dev/disk33         	GUID_partition_scheme          	
-/dev/disk33s1       	Apple_APFS                     	
-/dev/disk34         	EF57347C-0000-11AA-AA11-0030654	
-/dev/disk34s1       	41504653-0000-11AA-AA11-0030654	/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/.cache/firmware/target-volumes/os-mount
+/dev/disk31         	GUID_partition_scheme          	
+/dev/disk31s1       	Apple_APFS                     	
+/dev/disk32         	EF57347C-0000-11AA-AA11-0030654	
+/dev/disk32s1       	41504653-0000-11AA-AA11-0030654	/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/.cache/firmware/target-volumes/os-mount
 
 == /Users/runner/work/_temp/grow.log
 {
@@ -848,9 +893,9 @@ verified   CRC32 $23A465D8
   "gib": 3,
   "container_bytes": 3221225472,
   "bytes": 3221225472,
-  "sha256": "90055bd9cf517e7ddfdfa65c47a43936483c178df31e000c83f675df1f53b4be",
+  "sha256": "80905d058b86785efc645c375f1bd0d0bc72a4a62cbbc4eb3dd246e14cfe7fc3",
   "encoded_bytes": 1028224,
-  "encoded_sha256": "194b1f73d8aba3ef97f3eba158d73a8723988b5e4f021450b11fa6ac850d4afe",
+  "encoded_sha256": "e9407afbd84cb76d10982c73dab62a46bf92fc49eb271b2c8b0ce6ddb36b4a15",
   "packed": true
 }
 
@@ -866,33 +911,6 @@ verified   CRC32 $23A465D8
 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/ipsw/21H461/044-76034-038.dmg.trustcache
 
 == /Users/runner/work/_temp/kernel.log
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-link-stubs.py
-== kernel: archive-17-build-libpthread-kernel
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-libpthread-kernel.py
-== kernel: component-AppleKeyStoreState
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py AppleKeyStoreState
-== kernel: archive-19-build-verified-root-probe
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-verified-root-probe.py --component os --include-systemos
-== kernel: archive-20-build-arm-driver
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py NativeVirtioBlock --verified-root --verified-root-bundle
-== kernel: archive-21-build-storage-bindings
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-storage-bindings.py --component NativeVirtioBlock --archive libVirtioMmioBlock.a --directory build/virtio-mmio-block-verified-bundle --subset
-== kernel: component-QcomXnuUsbDebug
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/drivers/QcomXnuUsbDebug/scripts/build.py --compile-record /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837/pexpert/DEVELOPMENT/pe_kprintf.o.json --soc soc/Sm8250.h --output /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/.cache/qcom-usb-debug --replace
-+ bash /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-xnu-4k-baseline.sh
-== kernel: prelink
-== ipsw: remote https://updates.cdn-apple.com/2025SpringFCS/fullrestores/122-77166/DCA6CFE8-90E9-4B92-880D-3DE171798E40/iPad_Pro_HFR_17.7.11_21H461_Restore.ipsw
-+ python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/kits/XnuPrelink/emit_prelink.py --kernel /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/DEVELOPMENT_ARM64_BCM2837/mach.development.bcm2837.unstripped.noctf --prelinked /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/ipsw/21H461/kernelcache.decompressed --slide=-0x1000000 --output /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/kernel/kernel.macho --root com.apple.AppleFSCompression.AppleFSCompressionTypeZlib --root com.apple.driver.AppleARMPlatform --root com.apple.driver.AppleARMWatchdogTimer --root com.apple.driver.AppleAudioClockLibs --root com.apple.driver.AppleEffaceableStorage --root com.apple.driver.AppleIISController --root com.apple.driver.AppleM2ScalerCSCDriver --root com.apple.driver.AppleMobileFileIntegrity --root com.apple.driver.ApplePMGR --root com.apple.driver.IODARTFamily --root com.apple.filesystems.apfs --root com.apple.iokit.CoreAnalyticsFamily --root com.apple.iokit.IOAVFamily --root com.apple.iokit.IOAudio2Family --root com.apple.iokit.IOCECFamily --root com.apple.iokit.IOCryptoAcceleratorFamily --root com.apple.iokit.IOGPUFamily --root com.apple.iokit.IOHDCPFamily --root com.apple.iokit.IOMobileGraphicsFamily --root com.apple.iokit.IOReportFamily --root com.apple.iokit.IOSlowAdaptiveClockingFamily --root com.apple.iokit.IOStorageFamily --root com.apple.iokit.IOSurface --root com.apple.kec.Libm --root com.apple.kec.corecrypto --root com.apple.kext.AppleMatch --root com.apple.kext.CoreTrust --root com.apple.security.AppleImage4 --root com.apple.security.sandbox --root com.apple.iokit.IOHIDFamily --root com.apple.iokit.IOHIDEventDriver --early-security-init com.apple.driver.AppleMobileFileIntegrity=0xfffffff005ab4ae0
-== kernel: /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/kernel/kernel.macho sha256 2738fc346e29e7b7d95f3e54544b983e560214d7c03ddff60526b88b1e5da65f
-== configuration munch_defconfig -> /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/.config
-== submodules /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU
-== submodules /Users/runner/work/unixnu-munch-build/unixnu-munch-build/device
-== tree /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree
-== submodules /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU
-== submodules /Users/runner/work/unixnu-munch-build/unixnu-munch-build/device
-== tree /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree
-== kernel: XNU
-== kernel: archive-01-build-corecrypto-14
 + python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-corecrypto-14.py
 == kernel: archive-02-build-corecrypto-14
 + python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-corecrypto-14.py --namespace
@@ -942,9 +960,36 @@ verified   CRC32 $23A465D8
 + python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-sheng-hid-input.py
 == kernel: archive-25-build-gop-legacy-display
 + python3 /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-gop-legacy-display.py
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/libkern/libkern/c++/OSMetaClass.h:2119:2: note: expanded from macro 'OSDefineDefaultStructors'
+ 2119 |         OSDefineBasicStructors(className, superclassName)           \
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/build/xnu/ios-obj/EXPORT_HDRS/libkern/libkern/c++/OSMetaClass.h:2073:11: note: expanded from macro 'OSDefineBasicStructors'
+ 2073 |         { return new className; }                                   \
+      |                  ^~~~~~~~~~~~~
+/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/drivers/GopFramebuffer/NativeLegacyDisplay.cpp:778:57: error: cannot initialize return object of type 'IOService *' with an rvalue of type 'NativeLegacyDisplay *'
+  778 | IOService *native_legacy_display_allocate(void) {return new NativeLegacyDisplay;}
+      |                                                         ^~~~~~~~~~~~~~~~~~~~~~~
+73 errors generated.
+
 PASS: original Legacy has 358 slots with nine abstract leaves; original generic client/start/dispatch entries identified
 Service adds no operational overrides; Legacy initialization/start/backend contracts still require implementation and runtime qualification
-display patch anchor is not unique:         if(directOn && !gpuBypass && !latchRequest) {
+Traceback (most recent call last):
+  File "/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-gop-legacy-display.py", line 295, in <module>
+    print(run(['python3', ROOT / 'scripts/build-arm-driver.py', 'NativeLegacyDisplay'], text=True), end='')
+          ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-gop-legacy-display.py", line 36, in run
+    return subprocess.check_output([str(x) for x in cmd], timeout=90, **kw)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0_1/Frameworks/Python.framework/Versions/3.15/lib/python3.15/subprocess.py", line 587, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               **kwargs).stdout
+               ^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0_1/Frameworks/Python.framework/Versions/3.15/lib/python3.15/subprocess.py", line 692, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['python3', '/Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/tree/scripts/build-arm-driver.py', 'NativeLegacyDisplay']' returned non-zero exit status 1.
 unixnu: python3 failed (1); full log: /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/logs/archive-25-build-gop-legacy-display.log
 
 == /Users/runner/work/_temp/policy-os.log
@@ -958,7 +1003,7 @@ unixnu: python3 failed (1); full log: /Users/runner/work/unixnu-munch-build/unix
   "source_format": "UDIF",
   "host_bus_protocol": "Disk Image",
   "host_media_writable": false,
-  "trusted_key_sha256": "3afb7c1876f58badf6a7934f37562659edabfbbf3be4977f4562911c9ac23b37",
+  "trusted_key_sha256": "3db5b44f1d027b12fea5c089afc1391aee5f6f56ce484620ca8f732201142da2",
   "actual_sample_indices": [
     0,
     1,
@@ -992,7 +1037,7 @@ unixnu: python3 failed (1); full log: /Users/runner/work/unixnu-munch-build/unix
   "source_format": "UDIF",
   "host_bus_protocol": "Disk Image",
   "host_media_writable": false,
-  "trusted_key_sha256": "3afb7c1876f58badf6a7934f37562659edabfbbf3be4977f4562911c9ac23b37",
+  "trusted_key_sha256": "3db5b44f1d027b12fea5c089afc1391aee5f6f56ce484620ca8f732201142da2",
   "actual_sample_indices": [
     0,
     1,
@@ -1017,11 +1062,11 @@ unixnu: python3 failed (1); full log: /Users/runner/work/unixnu-munch-build/unix
 
 == /Users/runner/work/_temp/seed.log
 created: /Users/runner/work/unixnu-munch-build/unixnu-munch-build/UniXNU/build/owner-data-fixture/owner-data-32.cdr
-"disk35" ejected.
+"disk33" ejected.
 {
-  "volume_uuid": "EC85167F-B5D2-482E-B8E8-7769264FCA2E",
+  "volume_uuid": "774089EA-2447-4362-8D43-F10D368A1F28",
   "bytes": 33554432,
-  "sha256": "960b3e2531d58d819774191d5a046511907e55a3cb9c88195079d16501f012a7",
+  "sha256": "9c6cf3baaa4fb88a264fe645f09376d71dab1413465f26e4e83ce468ba2ee25d",
   "source_regular_files": 39,
   "source_regular_bytes": 611715,
   "guest_mutable": true,
