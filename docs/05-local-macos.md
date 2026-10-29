@@ -198,6 +198,7 @@ Data seed itself is meant to change.
 | `No space left on device` | less than ~10 GB free during userdata or kernel | free disk; the members can be deleted after the build |
 | `EXPORT_HDRS/libsa: no such file` | the bootstrap pass stopped before exporting headers | the script pre-creates the directories; keep that step |
 | `check-munch: set UNIXNU_UEFI` | firmware step without the variable | `export UNIXNU_UEFI=$WORK/uefi` |
+| `missing .../drivers/Adreno650/AGENTS.md` | the device repository's submodules are not initialised | `git -C ~/munch-build/device submodule update --init --recursive` |
 | kernel link: `symbol(s) not found` | a stage-2 component is selected without its archive | see `docs/04-troubleshooting.md`; the script builds the stage-1 set |
 
 ## 7. What a local build does not do

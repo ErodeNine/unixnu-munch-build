@@ -191,6 +191,7 @@ KEEP_SEED=1 ./scripts/build-local.sh ~/munch-build
 | `No space left on device` | 构建期间可用空间不足 10 GB | 清理磁盘；成员文件构建完可删除 |
 | `EXPORT_HDRS/libsa: no such file` | bootstrap pass 停在链接、未导出头文件 | 脚本已预建这些目录，保留该步骤 |
 | `check-munch: set UNIXNU_UEFI` | 固件步骤缺环境变量 | `export UNIXNU_UEFI=$WORK/uefi` |
+| `missing .../drivers/Adreno650/AGENTS.md` | 设备仓库的子模块没有初始化 | `git -C ~/munch-build/device submodule update --init --recursive` |
 | 内核链接 `symbol(s) not found` | 选了阶段 2 组件却没有对应 archive | 见 `docs/04-troubleshooting.md`；脚本只构建阶段 1 组件集 |
 
 ## 7. 本地构建不做什么

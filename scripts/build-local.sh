@@ -49,7 +49,10 @@ clone() {
   else
     git clone --recurse-submodules "$url" "$dir"
   fi
-  git -C "$dir" submodule update --init --recursive --depth 1 || true
+  # A submodule pinned at an older commit is not reachable for a shallow fetch, so
+  # fall back to a full one instead of leaving the checkout half-initialised.
+  git -C "$dir" submodule update --init --recursive --depth 1 ||
+    git -C "$dir" submodule update --init --recursive || true
 }
 
 say 'checkout'
