@@ -12,7 +12,7 @@
 | --- | --- | --- | --- |
 | A | `fastboot boot boot.img` | 无 | UEFI 菜单、DarwinBoot、XNU 控制台 |
 | B | `fastboot flash boot_a/boot_b` | 可回滚 | 断电重启仍能进 UniXNU |
-| C | `fastboot flash userdata` | **清空数据** | iOS Data 卷挂载、进入用户态 |
+| C | 用 `install-userdata-macos.sh` 写入根卷窗口 | **清空数据** | iOS 根卷与 Data 卷挂载 |
 
 > 阶段 1 镜像（v0.9 起）：没有显示后端，也没有触控驱动。屏幕上是 `build-boot-progress.py`
 > 在内核帧缓冲上绘制的启动阶段文本与 panic；UEFI 菜单仍可用音量键/电源键或 USB 键盘操作；
@@ -181,15 +181,18 @@ fastboot flash boot_b stock-boot.img
 
 ---
 
-## C 阶段：安装 userdata（危险，最后做）
+## C 阶段：安装根卷窗口（危险，最后做）
 
 只在 B 阶段稳定、且已核对 1.3 的 LBA 后执行。
 
+**不要**用 `fastboot flash userdata` 刷整盘镜像：分区约 226 GiB。内核读取的是偏移 0 的
+`SHNGROOT` 清单加两个窗口（OS 在 1 MiB，SystemOS 在 5,798 MiB）。在 Mac 上、手机进入 TWRP 后：
+
 ```sh
-fastboot flash userdata userdata-root.img
+./scripts/install-userdata-macos.sh ~/munch-build
 ```
 
-耗时较长（数 GB）。完成后重启，观察日志中：
+只传输窗口需要的 8.7 GiB。完成后重启，观察日志中：
 
 - APFS 容器/卷出现；
 - `launchd` 启动；

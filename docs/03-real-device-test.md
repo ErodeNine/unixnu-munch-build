@@ -12,7 +12,7 @@ Three stages, in order. Do not skip.
 | --- | --- | --- | --- |
 | A | `fastboot boot boot.img` | no | UEFI menu, DarwinBoot, XNU console |
 | B | `fastboot flash boot_a/boot_b` | recoverable | UniXNU survives a reboot |
-| C | `fastboot flash userdata` | **wipes data** | iOS Data volume mounts, userland starts |
+| C | root windows via `install-userdata-macos.sh` | **wipes data** | iOS root and Data volumes mount |
 
 > Stage 1 image (v0.9 and later): no display backend and no touch driver. The panel shows
 > the kernel frame-buffer text that `build-boot-progress.py` paints (boot stages and panics),
@@ -178,15 +178,19 @@ Or `fastboot reboot` and restore fully with the official ROM's `flash_all.bat`.
 
 ---
 
-## Stage C: install userdata (destructive, last)
+## Stage C: install the root windows (destructive, last)
 
 Only after stage B is stable and the LBAs from 1.3 are verified.
 
+Do **not** `fastboot flash userdata` a full image: the partition is about 226 GiB.
+The kernel reads a `SHNGROOT` manifest at offset 0 plus two windows (OS at 1 MiB,
+SystemOS at 5,798 MiB). On the Mac, with the phone in TWRP:
+
 ```sh
-fastboot flash userdata userdata-root.img
+./scripts/install-userdata-macos.sh ~/munch-build
 ```
 
-This takes a while (several GiB). After reboot, watch the log for:
+It streams only the 8.7 GiB the windows need. After reboot, watch the log for:
 
 - the APFS container/volume;
 - `launchd` starting;

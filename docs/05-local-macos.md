@@ -166,3 +166,26 @@ All under `out/munch/ipados-17.7.11-21H461/munch/`:
 - It does not publish a release; the artifacts stay in `out/`.
 - The firmware is a DEBUG build, so EDK II assertions halt instead of continuing. Pass
   `--target RELEASE` to `build package`/`build firmware` when you want a release volume.
+
+## 8. Install the iOS root windows (stage C)
+
+`fastboot flash userdata` needs the whole ~226 GiB partition image, so the root is
+installed as three pieces instead. The kernel's native UFS root driver reads a
+`SHNGROOT` manifest at offset 0 of userdata and two windows inside it:
+
+| Offset | Content | Size |
+| --- | --- | --- |
+| 0 | `SHNGROOT` manifest (4096 bytes) + zero padding | 1 MiB |
+| 1 MiB | the expanded OS disk image | 6,077,580,800 |
+| 5,798 MiB | the SystemOS image (`044-76034-038.dmg`) | 3,303,014,400 |
+
+With the phone booted into TWRP (adb enabled) and connected to the Mac:
+
+```sh
+chmod +x scripts/install-userdata-macos.sh
+./scripts/install-userdata-macos.sh ~/munch-build
+```
+
+The script writes the manifest, streams the raw OS disk through `adb shell dd`
+(only 8.7 GiB in total), then reboots instructions are printed. It asks for
+`ERASE` first because Android's data is replaced.

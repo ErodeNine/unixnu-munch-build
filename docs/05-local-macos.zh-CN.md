@@ -162,3 +162,24 @@ export UNIXNU_UEFI=$WORK/uefi
 - 不发布 Release；产物留在 `out/`。
 - 固件默认 DEBUG 构建，EDK II 断言会停住而不是继续。需要 release 卷时给
   `build package`/`build firmware` 加 `--target RELEASE`。
+
+## 8. 安装 iOS 根卷窗口（C 阶段）
+
+`fastboot flash userdata` 需要完整的约 226 GiB 分区镜像，所以根卷改为分三段写入。
+内核的原生 UFS 根驱动读取 userdata 偏移 0 的 `SHNGROOT` 清单和其中的两个窗口：
+
+| 偏移 | 内容 | 大小 |
+| --- | --- | --- |
+| 0 | `SHNGROOT` 清单（4096 字节）+ 零填充 | 1 MiB |
+| 1 MiB | 展开后的 OS 磁盘镜像 | 6,077,580,800 |
+| 5,798 MiB | SystemOS 镜像（`044-76034-038.dmg`） | 3,303,014,400 |
+
+手机进入 TWRP（已开 adb）并连接 Mac 后：
+
+```sh
+chmod +x scripts/install-userdata-macos.sh
+./scripts/install-userdata-macos.sh ~/munch-build
+```
+
+脚本会写清单、通过 `adb shell dd` 流式写入 OS 原始磁盘（总共只传约 8.7 GiB），
+最后打印重启命令。开始前需要输入 `ERASE` 确认，因为 Android 数据会被替换。
