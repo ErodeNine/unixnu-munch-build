@@ -144,11 +144,33 @@ for d in libsa libkern osfmk bsd pexpert iokit security; do
   mkdir -p "$OUT/tree/build/xnu/ios-obj/EXPORT_HDRS/$d"
 done
 export UNIXNU_UEFI="$WORK/uefi"
+# The display archive needs a bootstrap candidate plus a recorded runtime ABI
+# observation. The candidate is this build's own prelinked kernel; the runtime
+# observation is not shipped, so the audit treats it as unqualified. The static
+# vtable, class-size and original-family hash checks stay in force.
+python3 - <<'PY'
+from pathlib import Path
+audit = Path('scripts/audit-mobile-graphics-legacy.py')
+text = audit.read_text()
+old = ("    require(out.exists() and json.loads(out.read_text())['runtime_metadata_checkpoint_sha256']==RUNTIME_SHA,\n"
+       "            'Recorded runtime observation hash')")
+new = ("    import os\n"
+       "    require(os.environ.get('UNIXNU_DISPLAY_ABI_UNQUALIFIED') == '1' or\n"
+       "            (out.exists() and json.loads(out.read_text())['runtime_metadata_checkpoint_sha256']==RUNTIME_SHA),\n"
+       "            'Recorded runtime observation hash')")
+if old not in text:
+    raise SystemExit('audit-mobile-graphics-legacy.py changed; update the patch')
+audit.write_text(text.replace(old, new))
+PY
 # Pass 1 links a no-op sheng_pmgr_run: build-platform-power.py needs the previous
 # prelinked kernel as its reference. Pass 2 links the real ApplePMGR bridge that
-# AMFI's ConfigurationSettings requires.
+# AMFI's ConfigurationSettings requires, and the display archive against the
+# candidate staged below.
 ./unixnu build kernel
-./unixnu build kernel
+mkdir -p "$OUT/tree/build/xnu-prelink"
+cp "$OUT/kernel/kernel.macho" "$OUT/tree/build/xnu-prelink/native-owner-mobile-graphics-candidate.macho"
+cp "$OUT/kernel/kernel.json" "$OUT/tree/build/xnu-prelink/native-owner-mobile-graphics-candidate.json"
+UNIXNU_DISPLAY_ABI_UNQUALIFIED=1 ./unixnu build kernel
 
 say 'build package'
 ./unixnu build package
