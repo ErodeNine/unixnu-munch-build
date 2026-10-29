@@ -20,7 +20,8 @@ shutil.copytree(src, dst, ignore=shutil.ignore_patterns('.git', 'drivers', 'uefi
 
 board = dst / 'board.toml'
 text = board.read_text()
-for entry in ('build-munch-touch.py', 'component:ShengHidInput', 'build-gop-legacy-display.py'):
+for entry in ('build-munch-touch.py', 'component:ShengHidInput', 'build-gop-legacy-display.py',
+              'build-adreno650.py'):
     line = f'  "{entry}",\n'
     if line not in text:
         raise SystemExit(f'{entry} is not in board.toml')
@@ -37,6 +38,15 @@ if 'CONFIG_XNU_NATIVE_LEGACY_DISPLAY=y' not in text:
     raise SystemExit('the defconfig does not enable the display switch')
 text = text.replace('CONFIG_XNU_NATIVE_LEGACY_DISPLAY=y',
                     '# CONFIG_XNU_NATIVE_LEGACY_DISPLAY is not set')
+# The A650 driver's user client hands frames to the display presenter
+# (native_gop_handoff_call / native_gop_handoff_memory, NativeAdrenoPublish.cpp).
+# Pass 1 links no display archive, so it links no GPU archive either.
+adreno = 'CONFIG_XNU_NATIVE_ADRENO=y'
+archive = 'CONFIG_XNU_NATIVE_ADRENO_ARCHIVE="{tree}/build/adreno740/libAdreno740.a"'
+if adreno not in text or archive not in text:
+    raise SystemExit('the defconfig does not enable the Adreno switch and archive')
+text = text.replace(adreno, '# CONFIG_XNU_NATIVE_ADRENO is not set')
+text = text.replace(archive, '# CONFIG_XNU_NATIVE_ADRENO_ARCHIVE is not set')
 defconfig.write_text(text)
 
 # unixnu tree runs "git submodule update" inside the device directory, so the copy
