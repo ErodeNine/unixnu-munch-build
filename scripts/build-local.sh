@@ -103,29 +103,47 @@ PY
 say 'prepare the Data seed and the owner root policies'
 # The fixture, the packed seed and the grown seed all refuse to overwrite, so a
 # rerun after an interrupted build starts from a clean directory.
-rm -rf build/owner-data-fixture
-mkdir -p "$VOL/os-mount"
-hdiutil detach "$VOL/os-mount" -force >/dev/null 2>&1 || true
-hdiutil attach -readonly -nobrowse -owners off -mountpoint "$VOL/os-mount" \
-  out/ipsw/21H461/044-76040-038.dmg >/dev/null
-trap 'hdiutil detach "$VOL/os-mount" -force >/dev/null 2>&1 || true' EXIT
-python3 scripts/prepare-owner-data-fixture.py
-python3 "$HERE/scripts/build-root-policy.py" --component os \
-  --dmg out/ipsw/21H461/044-76040-038.dmg --out "$OUT/tree/build/verified-root-os" \
-  --expected-sha256 3f99b859c9728379110b66657c7b15285bcb1925ad8b5726542e2cdcf8b1028d \
-  --expected-blocks 1483785 --expected-uuid 04769D26-2CA0-4825-B443-E2E5F88300F2 \
-  --mountpoint "$VOL/os-mount" --image-source disk
-hdiutil detach "$VOL/os-mount" -force >/dev/null 2>&1 || true
-trap - EXIT
-python3 "$HERE/scripts/build-root-policy.py" --component systemos \
-  --dmg out/ipsw/21H461/044-76034-038.dmg --out "$OUT/tree/build/verified-root-systemos" \
-  --expected-sha256 b4908cde41d23e6bc05e6af51a2c9eeb00cf0f863a6a18b1600c96a3fd70414f \
-  --expected-blocks 806400 --image-source file
-mkdir -p build
-python3 "$HERE/scripts/pack-data-seed.py" \
-  build/owner-data-fixture/owner-data-32.cdr build/owner-data-fixture/owner-data-32.dbr
-python3 scripts/seed-data-grow.py --gib 3 \
-  build/owner-data-fixture/owner-data-32.dbr build/owner-data-fixture/owner-data-3.dbr
+#
+# KEEP_SEED=1 reuses the seed and the policies of the previous run. The seed's
+# volume UUID is pinned into the defconfig and therefore into the kernel, so a
+# new seed changes the configuration and invalidates the kernel build cache.
+# Iterating on driver code does not need a new seed: reuse the old one and the
+# XNU objects and the policy verification are skipped.
+REUSE_SEED=0
+if [ "${KEEP_SEED:-0}" = 1 ] &&
+   [ -f build/owner-data-fixture/seed.json ] &&
+   [ -f build/owner-data-fixture/owner-data-3.dbr ] &&
+   [ -d "$OUT/tree/build/verified-root-os" ] &&
+   [ -d "$OUT/tree/build/verified-root-systemos" ]; then
+  REUSE_SEED=1
+fi
+if [ "$REUSE_SEED" = 1 ]; then
+  say 'reuse the Data seed and the owner root policies (KEEP_SEED=1)'
+else
+  rm -rf build/owner-data-fixture
+  mkdir -p "$VOL/os-mount"
+  hdiutil detach "$VOL/os-mount" -force >/dev/null 2>&1 || true
+  hdiutil attach -readonly -nobrowse -owners off -mountpoint "$VOL/os-mount" \
+    out/ipsw/21H461/044-76040-038.dmg >/dev/null
+  trap 'hdiutil detach "$VOL/os-mount" -force >/dev/null 2>&1 || true' EXIT
+  python3 scripts/prepare-owner-data-fixture.py
+  python3 "$HERE/scripts/build-root-policy.py" --component os \
+    --dmg out/ipsw/21H461/044-76040-038.dmg --out "$OUT/tree/build/verified-root-os" \
+    --expected-sha256 3f99b859c9728379110b66657c7b15285bcb1925ad8b5726542e2cdcf8b1028d \
+    --expected-blocks 1483785 --expected-uuid 04769D26-2CA0-4825-B443-E2E5F88300F2 \
+    --mountpoint "$VOL/os-mount" --image-source disk
+  hdiutil detach "$VOL/os-mount" -force >/dev/null 2>&1 || true
+  trap - EXIT
+  python3 "$HERE/scripts/build-root-policy.py" --component systemos \
+    --dmg out/ipsw/21H461/044-76034-038.dmg --out "$OUT/tree/build/verified-root-systemos" \
+    --expected-sha256 b4908cde41d23e6bc05e6af51a2c9eeb00cf0f863a6a18b1600c96a3fd70414f \
+    --expected-blocks 806400 --image-source file
+  mkdir -p build
+  python3 "$HERE/scripts/pack-data-seed.py" \
+    build/owner-data-fixture/owner-data-32.cdr build/owner-data-fixture/owner-data-32.dbr
+  python3 scripts/seed-data-grow.py --gib 3 \
+    build/owner-data-fixture/owner-data-32.dbr build/owner-data-fixture/owner-data-3.dbr
+fi
 
 say 'pin the generated Data seed UUID'
 UUID=$(python3 -c "import json;print(json.load(open('build/owner-data-fixture/seed.json'))['volume_uuid'])")

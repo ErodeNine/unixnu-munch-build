@@ -168,6 +168,18 @@ fastboot boot ~/munch-build/UniXNU/out/munch/ipados-17.7.11-21H461/munch/boot/bo
 改 `munch_defconfig` 不属于这种情况：它改的是内核配置，必须跑完整的
 `build-local.sh`。
 
+### 迭代驱动代码时
+
+改 kit 或 package 源码（显示、触摸、HID）需要重编内核，但不需要新的 Data
+seed。`KEEP_SEED=1` 复用上一次的 seed 和 owner root 策略：seed 的 UUID 不再
+改变配置，XNU 对象缓存保持有效，只重编改动的 archive：
+
+```bash
+KEEP_SEED=1 ./scripts/build-local.sh ~/munch-build
+```
+
+要发布镜像、或本来就要换 Data seed 时，跑一次不带 `KEEP_SEED` 的完整构建。
+
 ## 6. 常见问题
 
 | 现象 | 原因 | 处理 |

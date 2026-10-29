@@ -173,6 +173,20 @@ without committing it, for example:
 A `defconfig` change is not covered: it changes the kernel configuration, so it
 needs the full `build-local.sh` run.
 
+### Driver-code iteration
+
+A change to a kit or package source (display, touch, HID) needs a new kernel, but
+not a new Data seed. `KEEP_SEED=1` reuses the seed and the owner root policies
+of the previous run; the seed's UUID no longer changes the configuration, so the
+XNU object cache stays valid and only the changed archives are rebuilt:
+
+```bash
+KEEP_SEED=1 ./scripts/build-local.sh ~/munch-build
+```
+
+Run a normal build (without `KEEP_SEED`) before publishing an image or when the
+Data seed itself is meant to change.
+
 ## 6. Troubleshooting
 
 | Symptom | Cause | Fix |
